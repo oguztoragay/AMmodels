@@ -1,21 +1,21 @@
 # Updated on AUG 27
 import time
-import smtplib
+#import smtplib
 import numpy as np
 import GSgenerator as GS
 from MILP import MILPpyo
-#from for_gurobi import GBNLPpyo
-#from MINLP import NLPpyo
+from for_gurobi import GBNLPpyo
+from MINLP import NLPpyo
 from DW import Draw_GS, Draw_MILP, Draw_MINLP 
 if __name__ == '__main__':
     try:
-        r1_set = [0,0.3,0.4,0.5] # Set of possible radius for MILP model
+        r1_set = [0,0.3,0.4,0.5,0.6] # Set of possible radius for MILP model
         r2_set = [0.3, 0.5, 0.4] # Lower and Upper bound of radius in MINLP model [min radius, max redius, initial radius]
         E = 250000
         smax = 300
         dmax = 0.5 # Maximum displacement in the nodes connected to the structure
-        Load = 2000
-        ins = (5,3,[0,4],[12],[-Load])
+        Load = 3000
+        ins = (3,3,[0,2],[7],[-Load])
         Problem_start_time = time.time()
         GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,r1_set) # Structure to be solved
         nodes = GS_ins.nodes;     elements = GS_ins.elements;     celements = GS_ins.celements
@@ -28,31 +28,31 @@ if __name__ == '__main__':
 #======================================================================================================================================================================================
         print('----------------------------------------( LINEAR MODEL PC CPLEX )----------------------------------------')
         LPstart = time.time()
-        #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-        X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'CPLEX', 'PC')# 
+        # #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
+        X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'octeract-engine', 'PC')# 
         TLP = np.round(time.time()-LPstart,3)
         Draw_MILP(nodes, elements, X, W, TLP, 'CP')
 #======================================================================================================================================================================================
-#        print('----------------------------------------( LINEAR MODEL PC GUROBI )----------------------------------------')
-#        LPstart = time.time()
-#        #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-#        X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'GUROBI', 'PC')# 
-#        TLP = np.round(time.time()-LPstart,3)
-#        Draw_MILP(nodes, elements, X, W, TLP, 'GB')
+        # print('----------------------------------------( LINEAR MODEL PC GUROBI )----------------------------------------')
+        # LPstart = time.time()
+        # Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
+        # X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'GUROBI', 'PC')# 
+        # TLP = np.round(time.time()-LPstart,3)
+        # Draw_MILP(nodes, elements, X, W, TLP, 'GB')
 #======================================================================================================================================================================================
-#        print('----------------------------------------( NONLINEAR MODEL PC GUROBI )-------------------------------------')
-#        NLPstart = time.time()
-#        #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
-#        Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'gurobi_ampl', 'PC')
-#        TNLP = np.round(time.time()-NLPstart,3)
-#        Draw_MINLP(nodes, celements, Z, W, TNLP, 'GU')
+        # print('----------------------------------------( NONLINEAR MODEL PC GUROBI )-------------------------------------')
+        # NLPstart = time.time()
+        #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
+        # Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'gurobi', 'PC')
+        # TNLP = np.round(time.time()-NLPstart,3)
+        # Draw_MINLP(nodes, celements, Z, W, TNLP, 'GU')
 #======================================================================================================================================================================================            
-#        print('----------------------------------------( NONLINEAR MODEL PC )--------------------------------------------')
-#        NLPstart = time.time()
-#        #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
-#        Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'BARON', 'PC')
-#        TNLP = np.round(time.time()-NLPstart,3)
-#        Draw_MINLP(nodes, celements, Z, W, TNLP, 'BA')
+        # print('----------------------------------------( NONLINEAR MODEL PC )--------------------------------------------')
+        # NLPstart = time.time()
+        # #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
+        # Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'octeract-engine', 'PC')
+        # TNLP = np.round(time.time()-NLPstart,3)
+        # Draw_MINLP(nodes, celements, Z, W, TNLP, 'BA')
 #======================================================================================================================================================================================
 #        mail = smtplib.SMTP('smtp.gmail.com',587) 
 #        mail.ehlo() 

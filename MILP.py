@@ -6,7 +6,7 @@ from shapely.geometry import LineString
 from pyomo.environ import Param, ConcreteModel, Var, Objective, ConstraintList, value, minimize, Binary, Constraint
 from pyomo.opt import SolverFactory
 from pyomo.opt.parallel import SolverManagerFactory
-import winsound
+# import winsound
 from pyomo.util.infeasible import log_infeasible_constraints
 import pandas as pd
 import itertools
@@ -130,8 +130,8 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 #            msolver.options['display'] = 2 #for each iteration
             msolver.options['timelimit'] = 36000
         elif sol == 'GUROBI':
-            msolver = SolverFactory('gurobi_ampl')
-#            msolver.options['threads'] = 8
+            msolver = SolverFactory('gurobi')
+            msolver.options['threads'] = 20
 #            msolver.options['concurrentmip'] = 8
             msolver.options['timelim'] = 36000
             #msolver.options['iterlim'] = default no limit
@@ -145,6 +145,10 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 #            msolver.options['threads'] = 8   # default number of threads to use: -1 = automatic choice (based on hardware),  n > 0 ==> use n threads
 #            msolver.options['lpiterlimit'] = ... # simplex iteration limit; default = 2147483647 = 2^31 - 1
 #            msolver.options['lplog'] = 100   # frequency of printing simplex iteration log; default = 100
+        elif sol == 'octeract-engine':
+            msolver = SolverFactory('octeract-engine')
+            # msolver.options['LP_SOLVER'] = 'GUROBI'
+            msolver.options['MILP_SOLVER'] = 'GUROBI'
         else:
             print('What else?')
                 
@@ -191,5 +195,5 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     for nn in boundary:
         doffs = nodes[nn].dof
         print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,np.round(m.RF[doffs[0]].value,4),np.round(m.RF[doffs[1]].value,4),np.round(m.RF[doffs[2]].value,4)))
-    duration = 300; fres = 1000; winsound.Beep(fres, duration)    
+    # duration = 300; fres = 1000; winsound.Beep(fres, duration)    
     return(X, weight)

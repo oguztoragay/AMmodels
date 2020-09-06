@@ -6,7 +6,7 @@ from shapely.geometry import LineString
 from pyomo.environ import Param, ConcreteModel, Var, Objective, ConstraintList, value, minimize, Binary, Constraint
 from pyomo.opt import SolverFactory
 from pyomo.opt.parallel import SolverManagerFactory
-import winsound
+# import winsound
 from pyomo.util.infeasible import log_infeasible_constraints
 import pandas as pd
 pd.set_option('display.max_rows', 500)
@@ -204,5 +204,5 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     for nn in boundary:
         doffs = nodes[nn].dof
         print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,np.round(m.RF[doffs[0]].value,4),np.round(m.RF[doffs[1]].value,4),np.round(m.RF[doffs[2]].value,4)))
-    duration = 300; freq = 1500; winsound.Beep(freq, duration)    
+    # duration = 300; freq = 1500; winsound.Beep(freq, duration)    
     return(Y,weight1)

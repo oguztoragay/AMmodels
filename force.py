@@ -44,9 +44,9 @@ if __name__ == '__main__':
             print('----------------------------------------( LINEAR MODEL GUROBI )----------------------------------------')
             LPstart = time.time()
             #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'gurobi_ampl', 'PC')# 
+            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'gurobi', 'PC')# 
             TLP = np.round(time.time()-LPstart,3)
-            Draw_MILP(nodes, elements, X, W, TLP, 'GB')
+            Draw_MILP(nodes, elements, X, W, TLP, 'GB-VM')
 #======================================================================================================================================================================================
 #            print('----------------------------------------( LINEAR MODEL XPRESS )----------------------------------------')
 #            LPstart = time.time()

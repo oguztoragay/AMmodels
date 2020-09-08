@@ -22,7 +22,7 @@ if __name__ == '__main__':
 #            ins_index = i        
 #            ins = ins_dictionary[ins_index]
             Load = 100 + i*100
-            ins = (3,3,[0,3,6],[5],[-Load])
+            ins = (4,4,[0,4,8,12],[15],[Load])
             Problem_start_time = time.time()
             GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,r1_set) # Structure to be solved
             nodes = GS_ins.nodes;     elements = GS_ins.elements;     celements = GS_ins.celements
@@ -31,7 +31,8 @@ if __name__ == '__main__':
             print(':::: Current Time :::: {}'.format(localtime))
             print('Below Ground structure has been created for models number {}. Total time for "GS" generating is "{}" seconds.'.format(i,np.round(GS_finish_time,2)))
             print(' 1 - Model to solve: {}\n 2 - Potential cross-sections set as: {}\n 3 - Nonlinear cs set: {}\n 4 - dmax = {} and smax = {}'.format(ins, r1_set, r2_set, dmax, smax))
-            Draw_GS(nodes,elements)       
+            if i == 0:
+                Draw_GS(nodes,elements)
 #======================================================================================================================================================================================
 #            print('----------------------------------------( LINEAR MODEL CPLEX )----------------------------------------')
 #            LPstart = time.time()
@@ -43,7 +44,7 @@ if __name__ == '__main__':
             print('----------------------------------------( LINEAR MODEL GUROBI )----------------------------------------')
             LPstart = time.time()
             #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'gurobi', 'PC')# 
+            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'gurobi_ampl', 'PC')# 
             TLP = np.round(time.time()-LPstart,3)
             Draw_MILP(nodes, elements, X, W, TLP, 'GB')
 #======================================================================================================================================================================================

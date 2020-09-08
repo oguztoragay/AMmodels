@@ -129,9 +129,9 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 #            msolver.options['threads'] = 8
 #            msolver.options['display'] = 2 #for each iteration
             msolver.options['timelimit'] = 36000
-        elif sol == 'GUROBI':
+        elif sol == 'gurobi':
             msolver = SolverFactory('gurobi')
-            msolver.options['threads'] = 20
+#            msolver.options['threads'] = 20
 #            msolver.options['concurrentmip'] = 8
             msolver.options['timelim'] = 36000
             #msolver.options['iterlim'] = default no limit

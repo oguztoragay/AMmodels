@@ -18,11 +18,11 @@ if __name__ == '__main__':
 #                          9:(4,4,[0,4,8,12],[15],[Load]), 10:(4,4,[3,7],[13,14],[Load,Load]), 11:(4,4,[12,13],[3,7],[-Load,-Load]), 12:(4,4,[8,12],[2,3],[-Load,-Load]),
 #                          13:(4,4,[12,13],[2,3],[-Load,-Load]), 14:(5,5,[0,1],[24],[Load])}
 #        ins_dictionary ={2:(3,3,[0,3,6],[2],[-Load]), 3:(3,3,[0,3,6],[7,8],[Load,Load]), 7:(4,3,[0,4,8],[7],[-Load]), 9:(4,4,[0,4,8,12],[15],[Load])}
-        for i in range(3):
+        for i in range(9):
 #            ins_index = i        
 #            ins = ins_dictionary[ins_index]
-            Load = 100+i*100
-            ins = (3,3,[0,3,6],[2],[-Load])
+            Load = 100 + i*100
+            ins = (3,3,[0,3,6],[5],[-Load])
             Problem_start_time = time.time()
             GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,r1_set) # Structure to be solved
             nodes = GS_ins.nodes;     elements = GS_ins.elements;     celements = GS_ins.celements
@@ -33,40 +33,40 @@ if __name__ == '__main__':
             print(' 1 - Model to solve: {}\n 2 - Potential cross-sections set as: {}\n 3 - Nonlinear cs set: {}\n 4 - dmax = {} and smax = {}'.format(ins, r1_set, r2_set, dmax, smax))
             Draw_GS(nodes,elements)       
 #======================================================================================================================================================================================
-            print('----------------------------------------( LINEAR MODEL CPLEX )----------------------------------------')
-            LPstart = time.time()
-            #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'CPLEX', 'PC')# 
-            TLP = np.round(time.time()-LPstart,3)
-            Draw_MILP(nodes, elements, X, W, TLP, 'CP')
+#            print('----------------------------------------( LINEAR MODEL CPLEX )----------------------------------------')
+#            LPstart = time.time()
+#            #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
+#            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'CPLEX', 'PC')# 
+#            TLP = np.round(time.time()-LPstart,3)
+#            Draw_MILP(nodes, elements, X, W, TLP, 'CP')
 #======================================================================================================================================================================================
             print('----------------------------------------( LINEAR MODEL GUROBI )----------------------------------------')
             LPstart = time.time()
             #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'burobi_ampl', 'PC')# 
+            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'gurobi', 'PC')# 
             TLP = np.round(time.time()-LPstart,3)
             Draw_MILP(nodes, elements, X, W, TLP, 'GB')
 #======================================================================================================================================================================================
-            print('----------------------------------------( LINEAR MODEL XPRESS )----------------------------------------')
-            LPstart = time.time()
-            #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'XPRESS', 'PC')# 
-            TLP = np.round(time.time()-LPstart,3)
-            Draw_MILP(nodes, elements, X, W, TLP, 'XP')
+#            print('----------------------------------------( LINEAR MODEL XPRESS )----------------------------------------')
+#            LPstart = time.time()
+#            #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
+#            X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'XPRESS', 'PC')# 
+#            TLP = np.round(time.time()-LPstart,3)
+#            Draw_MILP(nodes, elements, X, W, TLP, 'XP')
 #======================================================================================================================================================================================
             print('----------------------------------------( NONLINEAR MODEL GUROBI )-------------------------------------')
-            NLPstart = time.time()
-            #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
-            Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'gurobi_ampl', 'PC')
-            TNLP = np.round(time.time()-NLPstart,3)
-            Draw_MINLP(nodes, celements, Z, W, TNLP, 'GB')
+#            NLPstart = time.time()
+#            #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
+#            Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'gurobi_ampl', 'PC')
+#            TNLP = np.round(time.time()-NLPstart,3)
+#            Draw_MINLP(nodes, celements, Z, W, TNLP, 'GB')
 #======================================================================================================================================================================================            
-            print('----------------------------------------( NONLINEAR MODEL BARON )--------------------------------------------')
-            NLPstart = time.time()
-            #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
-            Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'BARON', 'PC')
-            TNLP = np.round(time.time()-NLPstart,3)
-            Draw_MINLP(nodes, celements, Z, W, TNLP, 'BA')
+#            print('----------------------------------------( NONLINEAR MODEL BARON )--------------------------------------------')
+#            NLPstart = time.time()
+#            #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
+#            Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'BARON', 'PC')
+#            TNLP = np.round(time.time()-NLPstart,3)
+#            Draw_MINLP(nodes, celements, Z, W, TNLP, 'BA')
 #======================================================================================================================================================================================
             print('************************************************************************************************************************')
     except ValueError as e:

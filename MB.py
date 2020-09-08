@@ -1,6 +1,5 @@
-# Updated on AUG 27
+# Updated on SEP 08
 import time
-#import smtplib
 import numpy as np
 import GSgenerator as GS
 from MILP import MILPpyo
@@ -14,8 +13,8 @@ if __name__ == '__main__':
         E = 250000
         smax = 300
         dmax = 0.5 # Maximum displacement in the nodes connected to the structure
-        Load = 3000
-        ins = (3,3,[0,2],[7],[-Load])
+        Load = 100
+        ins = (3,3,[0,2],[7],[Load])
         Problem_start_time = time.time()
         GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,r1_set) # Structure to be solved
         nodes = GS_ins.nodes;     elements = GS_ins.elements;     celements = GS_ins.celements
@@ -26,12 +25,12 @@ if __name__ == '__main__':
         print(' 1 - Model to solve: {}\n 2 - Potential cross-sections set as: {}\n 3 - Nonlinear cs set: {}\n 4 - dmax = {} and smax = {} and load = {}'.format(ins, r1_set, r2_set, dmax, smax, Load))
         Draw_GS(nodes,elements)       
 #======================================================================================================================================================================================
-        print('----------------------------------------( LINEAR MODEL PC CPLEX )----------------------------------------')
-        LPstart = time.time()
-        # #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-        X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'octeract-engine', 'PC')# 
-        TLP = np.round(time.time()-LPstart,3)
-        Draw_MILP(nodes, elements, X, W, TLP, 'CP')
+#        print('----------------------------------------( LINEAR MODEL PC CPLEX )----------------------------------------')
+#        LPstart = time.time()
+#        # #Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
+#        X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'octeract-engine', 'PC')
+#        TLP = np.round(time.time()-LPstart,3)
+#        Draw_MILP(nodes, elements, X, W, TLP, 'CP')
 #======================================================================================================================================================================================
         # print('----------------------------------------( LINEAR MODEL PC GUROBI )----------------------------------------')
         # LPstart = time.time()
@@ -53,7 +52,7 @@ if __name__ == '__main__':
         # Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'octeract-engine', 'PC')
         # TNLP = np.round(time.time()-NLPstart,3)
         # Draw_MINLP(nodes, celements, Z, W, TNLP, 'BA')
-#======================================================================================================================================================================================
+#======================================================================================================================================================================================       
 #        mail = smtplib.SMTP('smtp.gmail.com',587) 
 #        mail.ehlo() 
 #        mail.starttls() 

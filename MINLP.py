@@ -39,7 +39,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     m.d    = Var(m.dofs, initialize = 0)
     for i in m.nfree:
         m.d[i].fix(0)       
-    m.a   = Var(m.LE, initialize = r2_set[2]) #, bounds =(r2_set[0],r2_set[1])
+    m.a   = Var(m.LE, bounds =(r2_set[0],r2_set[1]), initialize = r2_set[2]) #, bounds =(r2_set[0],r2_set[1])
     m.x   = Var(m.LE, domain = Binary, initialize = 1)
     m.y   = Var(m.LN, domain = Binary, initialize = 0)
     m.v   = Var(m.LE, {0,1,2}, initialize = 0) # Elongation or contraction of beam i
@@ -118,6 +118,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     if wheresol == 'NEOS':
         solver_manager = SolverManagerFactory('neos')
         solution = solver_manager.solve(m, solver = sol)
+        weight1 = value(m.z)
     elif wheresol == 'PC':
         solver = SolverFactory(sol)
         if sol == 'BARON':
@@ -164,7 +165,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
         print('\n ************** NLP is done with status "{}"! Weight is "{}" and solver is "{}"**************.'.format(solution.solver.termination_condition, np.round(weight1,4), sol))
 #       log_infeasible_constraints(m)
     else:
-        print('Solver selection process was not correct.')
+        print('Solver selection process was not normal.')
 #-----------------------------------------------------------------------------------------
     force_loc = {}
     for i in m.LE:

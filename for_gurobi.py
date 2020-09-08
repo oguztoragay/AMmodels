@@ -1,11 +1,10 @@
-# 07/25/2020
+# 09/08/2020
 import warnings
 warnings.filterwarnings("ignore", category = UserWarning)
 import numpy as np
 import gurobipy as gb
 from gurobipy import GRB
 from shapely.geometry import LineString
-# import winsound
 import pandas as pd
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -71,7 +70,7 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
 #    m.display()
 # %% Solving MINLP model    
 #    m.linearize()
-    m.setParam(GRB.Param.Threads, 20.0)
+#    m.setParam(GRB.Param.Threads, 20.0)
     m.setParam(GRB.Param.TimeLimit, 36000)
     m.optimize()
     weight1 = m.objVal
@@ -116,8 +115,7 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
         RF[satr]= temp11 + temp21 + temp31
     for nn in boundary:
         doffs = nodes[nn].dof
-        print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,RF[doffs[0]],RF[doffs[1]],RF[doffs[2]]))
-    # duration = 300; freq = 1500; winsound.Beep(freq, duration)    
+        print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,RF[doffs[0]],RF[doffs[1]],RF[doffs[2]]))   
     return(Y,weight1)
     
    

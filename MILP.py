@@ -129,8 +129,8 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 #            msolver.options['threads'] = 8
 #            msolver.options['display'] = 2 #for each iteration
             msolver.options['timelimit'] = 36000
-        elif sol == 'gurobi':
-            msolver = SolverFactory('gurobi')
+        elif sol == 'GUROBI':
+            msolver = SolverFactory('GUROBI')
 #            msolver.options['threads'] = 20
 #            msolver.options['concurrentmip'] = 8
             msolver.options['timelim'] = 36000
@@ -148,10 +148,22 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
         elif sol == 'octeract-engine':
             msolver = SolverFactory('octeract-engine')
             # msolver.options['LP_SOLVER'] = 'GUROBI'
-            msolver.options['MILP_SOLVER'] = 'GUROBI'
+            msolver.options['MILP_SOLVER'] = 'gurobi-ampl'
         else:
             print('What else?')
-                
+        solution = msolver.solve(m, tee=True)
+    elif wheresol == 'VM':
+        if sol == 'GUROBI':
+            msolver = SolverFactory('gurobi')
+#            msolver.options['threads'] = 20
+#            msolver.options['concurrentmip'] = 8
+            msolver.options['timelim'] = 36000
+            #msolver.options['iterlim'] = default no limit
+        elif sol == 'octeract-engine':
+            msolver = SolverFactory('octeract-engine')
+            # msolver.options['LP_SOLVER'] = 'gurobi'
+            msolver.options['MILP_SOLVER'] = 'gurobi'
+            
         solution = msolver.solve(m, tee=True)
     else:
         solver_manager = SolverManagerFactory('neos')

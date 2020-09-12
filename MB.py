@@ -1,4 +1,4 @@
-# Updated on SEP 08
+# Updated on SEP 12 for DoE
 import time
 import numpy as np
 import GSgenerator as GS
@@ -8,12 +8,13 @@ from MINLP import NLPpyo
 from DW import Draw_GS, Draw_MILP, Draw_MINLP 
 if __name__ == '__main__':
     try:
-        r1_set = [0,0.3,0.4,0.5,0.6] # Set of possible radius for MILP model
+    # Set of possible radius for MILP model:
+        r1_set = {[0,0.2,0.5],[0,0.2,0.3,0.4,0.5],[0,0.2,0.25,0.3,0.35,0.4,0.45,0.5]}
         r2_set = [0.3, 0.5, 0.4] # Lower and Upper bound of radius in MINLP model [min radius, max redius, initial radius]
         E = 250000
         smax = 300
         dmax = 0.5 # Maximum displacement in the nodes connected to the structure
-        Load = 100
+        Load = {100,250,500}
         ins = (3,3,[0,2],[7],[Load])
         Problem_start_time = time.time()
         GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,r1_set) # Structure to be solved
@@ -22,7 +23,7 @@ if __name__ == '__main__':
         localtime = time.asctime( time.localtime(time.time()))
         print(':::: Current Time :::: {}'.format(localtime))
         print('Below Ground structure has been created. Total time for "GS" generating is "{}" seconds.'.format(np.round(GS_finish_time,2)))
-        print(' 1 - Model to solve: {}\n 2 - Potential cross-sections set as: {}\n 3 - Nonlinear cs set: {}\n 4 - dmax = {} and smax = {} and load = {}'.format(ins, r1_set, r2_set, dmax, smax, Load))
+        print(' 1 - Model to solve: {}\n 2 - Nonlinear cs set: {}\n 4 - dmax = {} and smax = {}'.format(ins, r2_set, dmax, smax))
         Draw_GS(nodes,elements)       
 #======================================================================================================================================================================================
 #        print('----------------------------------------( LINEAR MODEL PC CPLEX )----------------------------------------')
@@ -32,12 +33,12 @@ if __name__ == '__main__':
 #        TLP = np.round(time.time()-LPstart,3)
 #        Draw_MILP(nodes, elements, X, W, TLP, 'CP')
 #======================================================================================================================================================================================
-        # print('----------------------------------------( LINEAR MODEL PC GUROBI )----------------------------------------')
-        # LPstart = time.time()
-        # Options: cplex(NEOS), octeract-engine(PC), gurobi_ampl(PC), gurobi(PC)
-        # X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'GUROBI', 'PC')# 
-        # TLP = np.round(time.time()-LPstart,3)
-        # Draw_MILP(nodes, elements, X, W, TLP, 'GB')
+        print('----------------------------------------( LINEAR MODEL )----------------------------------------')
+        LPstart = time.time()
+#        Options: cplex(NEOS), octeract-engine(VM), gurobi_ampl(PC), gurobi(VM)
+        X, W = MILPpyo(E, nodes, elements, r1_set, dmax, smax, 'GUROBI', 'PC')# 
+        TLP = np.round(time.time()-LPstart,3)
+        Draw_MILP(nodes, elements, X, W, TLP, 'GB')
 #======================================================================================================================================================================================
         # print('----------------------------------------( NONLINEAR MODEL PC GUROBI )-------------------------------------')
         # NLPstart = time.time()

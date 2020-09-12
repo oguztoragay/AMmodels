@@ -1,0 +1,33 @@
+# Updated on SEP 12 for DoE
+import time
+import numpy as np
+import GSgenerator as GS
+from MILP import MILPpyo
+from for_gurobi import GBNLPpyo
+from MINLP import NLPpyo
+from DWdetail import Draw_GS, Draw_MILP, Draw_MINLP 
+if __name__ == '__main__':
+    try:
+        r1_set = [[0,0.2,0.5],[0,0.2,0.3,0.4,0.5],[0,0.2,0.25,0.3,0.35,0.4,0.45,0.5]]
+        r2_set = [0.3, 0.5, 0.4]
+        E = 250000
+        smax = 300
+        dmax = 0.25
+        Load = [100, 250, 500]
+        for ii in Load:
+            for jj in r1_set:
+#                ins = (3,3,[0,2],[7],[ii])
+#                ins = (3,3,[0,1,3],[8],[ii])
+                ins = (3,3,[0,3,6],[5],[-ii])
+                GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,jj)
+                nodes = GS_ins.nodes     
+                elements = GS_ins.elements
+                celements = GS_ins.celements
+                localtime = time.asctime( time.localtime(time.time()))
+                print(':::: Current Time :::: {}'.format(localtime))
+                LPstart = time.time()
+                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'PC')
+                TLP = np.round(time.time()-LPstart,3)
+                Draw_MILP(nodes, elements, X, W, TLP, ii, jj,'GB',dmax)
+    except ValueError as e:
+        print(e)

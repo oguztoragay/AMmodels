@@ -5,7 +5,7 @@ import GSgenerator as GS
 from MILP import MILPpyo
 from for_gurobi import GBNLPpyo
 from MINLP import NLPpyo
-from DWdetail import Draw_GS, Draw_MILP, Draw_MINLP 
+from DWdetail import Draw_MILP, Draw_MINLP 
 if __name__ == '__main__':
     try:
         r1_set = [[0,0.2,0.5],[0,0.2,0.3,0.4,0.5],[0,0.2,0.25,0.3,0.35,0.4,0.45,0.5]]
@@ -16,9 +16,9 @@ if __name__ == '__main__':
         Load = [100, 250, 500]
         for ii in Load:
             for jj in r1_set:
-#                ins = (3,3,[0,2],[7],[ii])
+                ins = (3,3,[0,2],[7],[ii])
 #                ins = (3,3,[0,1,3],[8],[ii])
-                ins = (3,3,[0,3,6],[5],[-ii])
+#                ins = (3,3,[0,3,6],[5],[-ii])
                 GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,jj)
                 nodes = GS_ins.nodes     
                 elements = GS_ins.elements
@@ -29,5 +29,15 @@ if __name__ == '__main__':
                 X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'PC')
                 TLP = np.round(time.time()-LPstart,3)
                 Draw_MILP(nodes, elements, X, W, TLP, ii, jj,'GB',dmax)
+                NLPstart = time.time()
+                #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
+                Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'GUROBI', 'PC')
+                TNLP = np.round(time.time()-NLPstart,3)
+                Draw_MINLP(nodes, celements, Z, W, TNLP, 'GU')
+                NLPstart = time.time()
+                #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
+                Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'BARON', 'PC')
+                TNLP = np.round(time.time()-NLPstart,3)
+                Draw_MINLP(nodes, celements, Z, W, TNLP, 'BA')
     except ValueError as e:
         print(e)

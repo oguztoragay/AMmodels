@@ -8,12 +8,12 @@ from MINLP import NLPpyo
 from DWdetail import Draw_MILP, Draw_MINLP 
 if __name__ == '__main__':
     try:
-        r1_set = [[0,0.2,0.5],[0,0.2,0.3,0.4,0.5],[0,0.2,0.25,0.3,0.35,0.4,0.45,0.5]]
-        r2_set = [0.3, 0.5, 0.4]
+        r1_set = [[0,0.2,0.5], [0,0.2,0.3,0.4,0.5], [0,0.2,0.25,0.3,0.35,0.4,0.45,0.5]]
+        r2_set = [0.2, 0.5, 0.4]
         E = 250000
         smax = 300
         dmax = 0.25
-        Load = [100, 250, 500]
+        Load = [100,250,500]
         for ii in Load:
             for jj in r1_set:
                 ins = (3,3,[0,2],[7],[ii])
@@ -26,18 +26,19 @@ if __name__ == '__main__':
                 localtime = time.asctime( time.localtime(time.time()))
                 print(':::: Current Time :::: {}'.format(localtime))
                 LPstart = time.time()
-                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'VM')
+                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'PC')
                 TLP = np.round(time.time()-LPstart,3)
                 Draw_MILP(nodes, elements, X, W, TLP, ii, jj,'GB',dmax)
-            NLPstart = time.time()
-            #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
+            #================================================================================
+            QPstart = time.time()
             Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'GUROBI', 'PC')
-            TNLP = np.round(time.time()-NLPstart,3)
-            Draw_MINLP(nodes, celements, Z, W, TNLP, 'GU')
+            TNLP = np.round(time.time()-QPstart,3)
+            Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'QG', dmax)
+            #================================================================================
             NLPstart = time.time()
             #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
-            # Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'BARON', 'PC')
-            # TNLP = np.round(time.time()-NLPstart,3)
-            # Draw_MINLP(nodes, celements, Z, W, TNLP, 'BA')
+            Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'BARON', 'PC')
+            TNLP = np.round(time.time()-NLPstart,3)
+            Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'BA', dmax)
     except ValueError as e:
         print(e)

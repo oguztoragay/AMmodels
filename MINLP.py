@@ -6,7 +6,6 @@ from shapely.geometry import LineString
 from pyomo.environ import Param, ConcreteModel, Var, Objective, ConstraintList, value, minimize, Binary, Constraint
 from pyomo.opt import SolverFactory
 from pyomo.opt.parallel import SolverManagerFactory
-# import winsound
 from pyomo.util.infeasible import log_infeasible_constraints
 import pandas as pd
 pd.set_option('display.max_rows', 500)
@@ -39,7 +38,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     m.d    = Var(m.dofs, initialize = 0)
     for i in m.nfree:
         m.d[i].fix(0)       
-    m.a   = Var(m.LE, bounds =(r2_set[0],r2_set[1]), initialize = r2_set[2]) #, bounds =(r2_set[0],r2_set[1])
+    m.a   = Var(m.LE, initialize = r2_set[2]) #, bounds =(r2_set[0],r2_set[1])
     m.x   = Var(m.LE, domain = Binary, initialize = 1)
     m.y   = Var(m.LN, domain = Binary, initialize = 0)
     m.v   = Var(m.LE, {0,1,2}, initialize = 0) # Elongation or contraction of beam i
@@ -60,23 +59,8 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
                      (celements[i].KE[2]*m.a[i]**2)*(celements[i].B[2][satr]*sum(celements[i].B[2][di0]*m.d[di0] for di0 in m.dofs))
         if satr in m.nfree:
             m.cons1.add(temp1 == m.RF[satr])
-#            m.cons1.add(temp1 >= m.RF[satr])
         else:
             m.cons1.add(temp1 == f[satr])
-    
-#    m.cons1 = ConstraintList()
-#    for satr in m.dofs:
-#        temp1 = 0
-#        for i in m.LE:
-#            temp1 += (celements[i].KE[0]*m.a[i])*(m.v[i,0])*(celements[i].B[0][satr]) + \
-#                     (celements[i].KE[1]*m.a[i]**2)*(m.v[i,1])*(celements[i].B[1][satr]) + \
-#                     (celements[i].KE[2]*m.a[i]**2)*(m.v[i,2])*(celements[i].B[2][satr])
-#        if satr in m.nfree:
-#            m.cons1.add(temp1 <= m.RF[satr])
-#            m.cons1.add(temp1 >= m.RF[satr])
-#        else:
-#            m.cons1.add(temp1 <= f[satr])
-#            m.cons1.add(temp1 >= f[satr])
 #-----------------------------------------------------------------------------------------           
     m.cons2 = ConstraintList()
     for i in m.LE:
@@ -163,7 +147,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
         solution = solver.solve(m, tee = True)
         weight1 = value(m.z)
         print('\n ************** NLP is done with status "{}"! Weight is "{}" and solver is "{}"**************.'.format(solution.solver.termination_condition, np.round(weight1,4), sol))
-#       log_infeasible_constraints(m)
+        log_infeasible_constraints(m)
     else:
         print('Solver selection process was not normal.')
 #-----------------------------------------------------------------------------------------
@@ -204,6 +188,5 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     print('-------------------------------------------( REACTIONS )---------------------------------------')    
     for nn in boundary:
         doffs = nodes[nn].dof
-        print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,np.round(m.RF[doffs[0]].value,4),np.round(m.RF[doffs[1]].value,4),np.round(m.RF[doffs[2]].value,4)))
-    # duration = 300; freq = 1500; winsound.Beep(freq, duration)    
+        print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,np.round(m.RF[doffs[0]].value,4),np.round(m.RF[doffs[1]].value,4),np.round(m.RF[doffs[2]].value,4)))   
     return(Y,weight1)

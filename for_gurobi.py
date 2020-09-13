@@ -117,12 +117,3 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
         doffs = nodes[nn].dof
         print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,RF[doffs[0]],RF[doffs[1]],RF[doffs[2]]))   
     return(Y,weight1)
-    
-   
-    
-    
-    
-    
-    
-    
-    

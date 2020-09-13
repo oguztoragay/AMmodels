@@ -30,7 +30,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     m.dofs  = set(np.ravel([nodes[i].dof for i in nodes.keys()]))
     m.nfree = nfree
     m.free  = m.dofs - m.nfree
-    m.rho = 1;  m.E = E;  m.dmax = dmax
+    m.rho = 1;  m.E = E;  m.dmax = dmax; m.smax = smax
     m.amin = np.pi*(r2_set[0]**2); m.amax = np.pi*(r2_set[1]**2); m.Smax = smax
 ## --------------------------------------------------------------------------------------------------------------------------------------------------
     def lerule(m,i):
@@ -41,7 +41,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     m.a   = Var(m.LE, initialize = r2_set[2]) #, bounds =(r2_set[0],r2_set[1])
     m.x   = Var(m.LE, domain = Binary, initialize = 1)
     m.y   = Var(m.LN, domain = Binary, initialize = 0)
-    m.v   = Var(m.LE, {0,1,2}, initialize = 0) # Elongation or contraction of beam i
+#    m.v   = Var(m.LE, {0,1,2}, initialize = 0) # Elongation or contraction of beam i
     m.RF  = Var(m.nfree, initialize = 0) # Reactions on the boundary nodes
     m.le  = Param(m.LE, rule = lerule)
     m.M   = Param(initialize = 100)
@@ -85,7 +85,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
 #-----------------------------------------------------------------------------------------
     m.cons6 = ConstraintList()
     for i in m.LE:
-        m.cons6.add(2*m.x[i] <= m.y[celements[i].nodei.name] + m.y[celements[i].nodej.name])
+        m.cons6.add(m.x[i] <= m.y[celements[i].nodei.name] + m.y[celements[i].nodej.name]) #2*m.x[i]
 #-----------------------------------------------------------------------------------------
     m.cons7 = ConstraintList()        
     for i in m.LE:
@@ -98,6 +98,35 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
                m.cons7.add(m.x[i] + m.x[j] <= 1)
             else:
                 Constraint.Skip
+#-----------------------------------------------------------------------------------------                  
+    m.cons14 = ConstraintList()
+    for i in m.LE:
+        dofi = nodes[celements[i].orient[0]].dof
+        dofj = nodes[celements[i].orient[1]].dof
+        c = celements[i].cosan
+        s = celements[i].sinan
+#        c2=c*c
+#        s2=s*s
+#        cs = c*s
+#        L = barsdf.iloc[i][6]
+#        EAL = E*model.area[i]/L
+#        EIL2 = (E*((model.area[i]**2)/(4*np.pi)))/(L**2)
+#        f_A = (E/L)*((model.disp[dofs[0]]*c2)+(model.disp[dofs[1]]*cs)-(model.disp[dofs[3]]*c2)-(model.disp[dofs[4]]*cs))
+##        f_A = ((EAL*c2)+(12*EIL2*s2/L))*model.disp[dofs[0]]+\
+##               ((EAL*cs)+(-12*EIL2*cs/L))*model.disp[dofs[1]]+\
+##               (-6*EIL2*s)*model.disp[dofs[3]]+\
+##               ((-EAL*c2)+(-12*EIL2*s2/L))*model.disp[dofs[3]]+\
+##               ((-EAL*cs)+(12*EIL2*cs/L))*model.disp[dofs[4]]+\
+##               (-6*EIL2*s)*model.disp[dofs[5]]
+#        if f_A == 0:
+#            Constraint.Skip
+#        else:
+#            model.cons14.add(expr = f_A <= model.smax)
+#            model.cons14.add(expr = -model.smax <= f_A)
+        di = c*m.d[dofi[0]]+s*m.d[dofi[1]]
+        dj = c*m.d[dofj[0]]+s*m.d[dofj[1]]   
+        m.cons14.add((dj-di)*(celements[i].KE[0])<=m.smax)
+        m.cons14.add(-m.smax<=(dj-di)*(celements[i].KE[0]))                
 # %% Solving MINLP model
     if wheresol == 'NEOS':
         solver_manager = SolverManagerFactory('neos')

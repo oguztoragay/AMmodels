@@ -24,16 +24,16 @@ if __name__ == '__main__':
                 elements = GS_ins.elements
                 celements = GS_ins.celements
                 localtime = time.asctime( time.localtime(time.time()))
-                print(':::: Current Time :::: {}'.format(localtime))
-                LPstart = time.time()
-                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'PC')
-                TLP = np.round(time.time()-LPstart,3)
-                Draw_MILP(nodes, elements, X, W, TLP, ii, jj,'GB',dmax)
-            #================================================================================
-            QPstart = time.time()
-            Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'GUROBI', 'PC')
-            TNLP = np.round(time.time()-QPstart,3)
-            Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'QG', dmax)
+#                print(':::: Current Time :::: {}'.format(localtime))
+#                LPstart = time.time()
+#                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'PC')
+#                TLP = np.round(time.time()-LPstart,3)
+#                Draw_MILP(nodes, elements, X, W, TLP, ii, jj,'GB',dmax)
+#            #================================================================================
+#            QPstart = time.time()
+#            Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'GUROBI', 'PC')
+#            TNLP = np.round(time.time()-QPstart,3)
+#            Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'QG', dmax)
             #================================================================================
             NLPstart = time.time()
             #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)

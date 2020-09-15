@@ -155,8 +155,8 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     elif wheresol == 'VM':
         if sol == 'GUROBI':
             msolver = SolverFactory('gurobi')
-#            msolver.options['threads'] = 20
-#            msolver.options['concurrentmip'] = 8
+            msolver.options['threads'] = 24
+            msolver.options['concurrentmip'] = 8
             msolver.options['timelim'] = 36000
             #msolver.options['iterlim'] = default no limit
         elif sol == 'octeract-engine':
@@ -164,7 +164,7 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
             # msolver.options['LP_SOLVER'] = 'gurobi'
             msolver.options['MILP_SOLVER'] = 'gurobi'
             
-        solution = msolver.solve(m, tee=True)
+        solution = msolver.solve(m, tee=False)
     else:
         solver_manager = SolverManagerFactory('neos')
         solution = solver_manager.solve(m, solver=sol)   

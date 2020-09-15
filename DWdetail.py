@@ -31,7 +31,7 @@ def Draw_MILP(nodes, elements, X, W, TLP, ii, jj, solver, dmax):
             if i in node_list:
                 node_colors.append('k')
             else:
-                node_colors.append('gray')
+                node_colors.append('lightgrey')
     nx.draw_networkx_nodes(G, pos, node_color = node_colors, alpha = 1, node_size = 200, node_shape = 'o', linewidths = 0)
     nx.draw_networkx_labels(G, pos, node_names, font_size = 10, font_color='#FFFF00')
 ## Drawing the edges ----------------------------
@@ -50,7 +50,7 @@ def Draw_MILP(nodes, elements, X, W, TLP, ii, jj, solver, dmax):
             edge_styles.update({(i_pos1, i_pos2):'solid'})
         else:
             edge_widths.update({(i_pos1, i_pos2):1})
-            edge_colors.update({(i_pos1, i_pos2):'gray'})
+            edge_colors.update({(i_pos1, i_pos2):'lightgrey'})
             edge_styles.update({(i_pos1, i_pos2):'dashed'})
     edge_colors1 = list(edge_colors.values())
     edge_styles1 = list(edge_styles.values())
@@ -91,7 +91,7 @@ def Draw_MINLP(nodes, celements, Y, W, TNLP, ii, solver, dmax):
             if i in node_list:
                 node_colors.append('k')
             else:
-                node_colors.append('gray')
+                node_colors.append('lightgrey')
     nx.draw_networkx_nodes(G, pos, node_color = node_colors, alpha = 1, node_size = 200, node_shape = 'o', linewidths = 0)
     nx.draw_networkx_labels(G, pos, node_names, font_size = 10, font_color='#FFFF00')
 ## Drawing the edges ----------------------------
@@ -110,7 +110,7 @@ def Draw_MINLP(nodes, celements, Y, W, TNLP, ii, solver, dmax):
             edge_styles.update({(i_pos1, i_pos2):'solid'})
         else:
             edge_widths.update({(i_pos1, i_pos2):1})
-            edge_colors.update({(i_pos1, i_pos2):'gray'})
+            edge_colors.update({(i_pos1, i_pos2):'lightgrey'})
             edge_styles.update({(i_pos1, i_pos2):'dashed'})
     edge_colors1 = list(edge_colors.values())
     edge_styles1 = list(edge_styles.values())
@@ -120,3 +120,10 @@ def Draw_MINLP(nodes, celements, Y, W, TNLP, ii, solver, dmax):
     plt.axis('off')
     plt.suptitle('|Dmax:' + str(dmax) + '|Solver:' + solver + '|Stime:' + str(TNLP) + '|Weight:' + str(np.round(W,4)) + '\nLoad:' + str(ii) , fontsize = 11)
     plt.show()
+    
+    
+    
+#        for i in free:
+#        ww = nodes[i//3].where
+#        m.addConstr((d[i]<=sum(ar[j] for j in ww)), name='dispULimit')
+#        m.addConstr((d[i]>=sum(ar[j] for j in ww)), name='disLLimit')

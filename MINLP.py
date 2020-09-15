@@ -105,24 +105,6 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
         dofj = nodes[celements[i].orient[1]].dof
         c = celements[i].cosan
         s = celements[i].sinan
-#        c2=c*c
-#        s2=s*s
-#        cs = c*s
-#        L = barsdf.iloc[i][6]
-#        EAL = E*model.area[i]/L
-#        EIL2 = (E*((model.area[i]**2)/(4*np.pi)))/(L**2)
-#        f_A = (E/L)*((model.disp[dofs[0]]*c2)+(model.disp[dofs[1]]*cs)-(model.disp[dofs[3]]*c2)-(model.disp[dofs[4]]*cs))
-##        f_A = ((EAL*c2)+(12*EIL2*s2/L))*model.disp[dofs[0]]+\
-##               ((EAL*cs)+(-12*EIL2*cs/L))*model.disp[dofs[1]]+\
-##               (-6*EIL2*s)*model.disp[dofs[3]]+\
-##               ((-EAL*c2)+(-12*EIL2*s2/L))*model.disp[dofs[3]]+\
-##               ((-EAL*cs)+(12*EIL2*cs/L))*model.disp[dofs[4]]+\
-##               (-6*EIL2*s)*model.disp[dofs[5]]
-#        if f_A == 0:
-#            Constraint.Skip
-#        else:
-#            model.cons14.add(expr = f_A <= model.smax)
-#            model.cons14.add(expr = -model.smax <= f_A)
         di = c*m.d[dofi[0]]+s*m.d[dofi[1]]
         dj = c*m.d[dofj[0]]+s*m.d[dofj[1]]   
         m.cons14.add((dj-di)*(celements[i].KE[0])<=m.smax)

@@ -38,7 +38,7 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     m.d    = Var(m.dofs, initialize = 0)
     for i in m.nfree:
         m.d[i].fix(0)       
-    m.a   = Var(m.LE, initialize = r2_set[2]) #, bounds =(r2_set[0],r2_set[1])
+    m.a   = Var(m.LE, initialize = np.pi*(r2_set[2]**2)) #, bounds =(r2_set[0],r2_set[1])
     m.x   = Var(m.LE, domain = Binary, initialize = 1)
     m.y   = Var(m.LN, domain = Binary, initialize = 0)
 #    m.v   = Var(m.LE, {0,1,2}, initialize = 0) # Elongation or contraction of beam i
@@ -99,16 +99,16 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
             else:
                 Constraint.Skip
 #-----------------------------------------------------------------------------------------                  
-    m.cons14 = ConstraintList()
-    for i in m.LE:
-        dofi = nodes[celements[i].orient[0]].dof
-        dofj = nodes[celements[i].orient[1]].dof
-        c = celements[i].cosan
-        s = celements[i].sinan
-        di = c*m.d[dofi[0]]+s*m.d[dofi[1]]
-        dj = c*m.d[dofj[0]]+s*m.d[dofj[1]]   
-        m.cons14.add((dj-di)*(celements[i].KE[0])<=m.smax)
-        m.cons14.add(-m.smax<=(dj-di)*(celements[i].KE[0]))                
+#    m.cons14 = ConstraintList()
+#    for i in m.LE:
+#        dofi = nodes[celements[i].orient[0]].dof
+#        dofj = nodes[celements[i].orient[1]].dof
+#        c = celements[i].cosan
+#        s = celements[i].sinan
+#        di = c*m.d[dofi[0]]+s*m.d[dofi[1]]
+#        dj = c*m.d[dofj[0]]+s*m.d[dofj[1]]   
+#        m.cons14.add((dj-di)*(celements[i].KE[0])<=m.smax)
+#        m.cons14.add(-m.smax<=(dj-di)*(celements[i].KE[0]))                
 # %% Solving MINLP model
     if wheresol == 'NEOS':
         solver_manager = SolverManagerFactory('neos')

@@ -79,8 +79,8 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     m.cons4 = ConstraintList()
     for i in m.LE:
         for j in {0,1,2}:
-            m.cons4.add(m.s[i,j]<= m.M*(sum(elements[i].profile[p].area*m.x[i,p] for p in m.PR-{0})))
-            m.cons4.add(m.s[i,j]>= -m.M*(sum(elements[i].profile[p].area*m.x[i,p] for p in m.PR-{0})))
+            m.cons4.add(m.s[i,j]<= m.M*(sum(elements[i].profile[p].area*m.x[i,p] for p in m.PR)))#-{0}
+            m.cons4.add(m.s[i,j]>= -m.M*(sum(elements[i].profile[p].area*m.x[i,p] for p in m.PR)))#-{0}
 #----------------------------------------------------------             
     m.cons5 = ConstraintList()
     for i in m.LE:
@@ -103,7 +103,7 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
         m.cons8.add(sum(m.x[elem,p] for p in m.PR-{0} for elem in elemlist) >= 2*m.y[i]) 
 #----------------------------------------------------------        
     m.cons9 = ConstraintList()
-    for i in m.LN:
+    for i in m.LN-boundary:
         doflist = nodes[i].dof
         for dof in doflist:
             m.cons9.add(m.d[dof] <= m.y[i]*m.dmax)

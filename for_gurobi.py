@@ -57,8 +57,8 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     LNf = [x for x in temp1 if x not in load_node]
     for i in LNf:
         ww = nodes[i].where
-        m.addConstr((d[i]<=sum(ar[j] for j in ww)*50), name='dispULimit')
-        m.addConstr((d[i]>=-sum(ar[j] for j in ww)*50), name='disLLimit')
+        m.addConstr((d[i]<=sum(ar[j] for j in ww)*5), name='dispULimit')
+        m.addConstr((d[i]>=-sum(ar[j] for j in ww)*5), name='disLLimit')
 #-----------------------------------------------------------------------------------------   
     for i in LE:
         for j in range(i+1, len(LE)):
@@ -69,16 +69,16 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
             if int_pt == True and toucher == False:
                m.addConstr(ar[i]*ar[j] == 0, name='Crossing')
 #-----------------------------------------------------------------------------------------               
-    for i in LE:
-        dofi = nodes[celements[i].orient[0]].dof
-        dofj = nodes[celements[i].orient[1]].dof
-        c = celements[i].cosan
-        s = celements[i].sinan
-        di = c*d[dofi[0]]+s*d[dofi[1]]
-        dj = c*d[dofj[0]]+s*d[dofj[1]]   
-        m.addConstr((dj-di)*(celements[i].KE[0])<=smax)
-        m.addConstr(-smax<=(dj-di)*(celements[i].KE[0]))           
-    m.update() 
+#    for i in LE:
+#        dofi = nodes[celements[i].orient[0]].dof
+#        dofj = nodes[celements[i].orient[1]].dof
+#        c = celements[i].cosan
+#        s = celements[i].sinan
+#        di = c*d[dofi[0]]+s*d[dofi[1]]
+#        dj = c*d[dofj[0]]+s*d[dofj[1]]   
+#        m.addConstr((dj-di)*(celements[i].KE[0])<=smax)
+#        m.addConstr(-smax<=(dj-di)*(celements[i].KE[0]))           
+#    m.update() 
 #    m.display()
 # %% Solving MINLP model    
 #    m.linearize()

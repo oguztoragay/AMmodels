@@ -16,8 +16,8 @@ if __name__ == '__main__':
         Load = [100,250,500]
         for ii in Load:
             for jj in r1_set:
-                # ins = (3,3,[0,2],[7],[ii])
-                # ins = (3,3,[0,1,3],[8],[ii])
+#                ins = (3,3,[0,2],[7],[ii])
+#                ins = (3,3,[0,1,3],[8],[ii])
                 ins = (3,3,[0,3,6],[5],[-ii])
                 GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,jj)
                 nodes = GS_ins.nodes     
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                 localtime = time.asctime( time.localtime(time.time()))
                 print(':::: Current Time :::: {}'.format(localtime))
                 LPstart = time.time()
-                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'VM')
+                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'PC')
                 TLP = np.round(time.time()-LPstart,3)
                 Draw_MILP(nodes, elements, X, W, TLP, ii, jj,'GB',dmax)
 #            #================================================================================
@@ -36,7 +36,6 @@ if __name__ == '__main__':
             Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'QG', dmax)
             #================================================================================
 #            NLPstart = time.time()
-#            #Options: BARON(PC), knitro(PC), knitro(NEOS), APOPT(APOPT), octeract-engine(PC)
 #            Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'BARON', 'PC')
 #            TNLP = np.round(time.time()-NLPstart,3)
 #            Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'BA', dmax)

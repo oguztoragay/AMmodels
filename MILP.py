@@ -202,7 +202,7 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
         dof = nodes[i].dof
         dis = np.round([m.d[dof[0]].value, m.d[dof[1]].value, m.d[dof[2]].value],5)
         toprint2.loc[i] = [m.y[i].value,dis[0],dis[1],dis[2]]
-#    print(toprint2)
+    print(toprint2)
 #    print('-------------------------------------------( REACTIONS )---------------------------------------')
     for nn in boundary:
         doffs = nodes[nn].dof

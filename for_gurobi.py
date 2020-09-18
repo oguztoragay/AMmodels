@@ -39,7 +39,7 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     for i in LE:
         le.update({i:celements[i].length}) 
 # %% Generating Objective function and Constraints
-    obj = gb.quicksum(ar[i] * le[i] for i in LE)
+    obj = gb.quicksum(ar[i]*le[i] for i in LE)
     m.setObjective(obj, GRB.MINIMIZE)
 #-------------------------------------------------------------CONSTRAINTS---------------------------------------------------------------------------      
     for satr in free:
@@ -56,9 +56,11 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     temp1 = [x for x in LN if x not in boundary]
     LNf = [x for x in temp1 if x not in load_node]
     for i in LNf:
+        dofs = nodes[i].dof
         ww = nodes[i].where
-        m.addConstr((d[i]<=sum(ar[j] for j in ww)*5), name='dispULimit')
-        m.addConstr((d[i]>=-sum(ar[j] for j in ww)*5), name='disLLimit')
+        for ii in dofs:
+            m.addConstr((d[ii]<=sum(ar[j] for j in ww)), name='dispULimit')
+            m.addConstr((d[ii]>=-sum(ar[j] for j in ww)), name='disLLimit')
 #-----------------------------------------------------------------------------------------   
     for i in LE:
         for j in range(i+1, len(LE)):
@@ -76,9 +78,9 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
 #        s = celements[i].sinan
 #        di = c*d[dofi[0]]+s*d[dofi[1]]
 #        dj = c*d[dofj[0]]+s*d[dofj[1]]   
-#        m.addConstr((dj-di)*(celements[i].KE[0])<=smax)
-#        m.addConstr(-smax<=(dj-di)*(celements[i].KE[0]))           
-#    m.update() 
+#        m.addConstr((dj-di)*E<=smax*ar[i])#(celements[i].KE[0])
+#        m.addConstr(-smax*ar[i]<=(dj-di)*E)           
+    m.update() 
 #    m.display()
 # %% Solving MINLP model    
 #    m.linearize()

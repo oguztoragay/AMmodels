@@ -45,7 +45,7 @@ def Draw_MILP(nodes, elements, X, W, TLP, ii, jj, solver, dmax):
         G.add_edge(i_pos1, i_pos2)
         if i in Xdic.keys():
             edge_labels.update({(i_pos1, i_pos2): str([i, Xdic[i]])})
-            edge_widths.update({(i_pos1, i_pos2):10*elements[i].profile[Xdic[i]].area})
+            edge_widths.update({(i_pos1, i_pos2):20*elements[i].profile[Xdic[i]].r})
             edge_colors.update({(i_pos1, i_pos2):'k'})
             edge_styles.update({(i_pos1, i_pos2):'solid'})
         else:
@@ -104,8 +104,8 @@ def Draw_MINLP(nodes, celements, Y, W, TNLP, ii, solver, dmax):
         i_pos2 = celements[i].nodej.name
         G.add_edge(i_pos1, i_pos2)
         if Ydic[i]!=0:
-            edge_labels.update({(i_pos1, i_pos2): celements[i].name})
-            edge_widths.update({(i_pos1, i_pos2):10*Y[i]})
+            edge_labels.update({(i_pos1, i_pos2): str([celements[i].name,np.round(np.sqrt(Y[i]/np.pi),3)])})
+            edge_widths.update({(i_pos1, i_pos2):10*(np.sqrt(Y[i]/np.pi))*2})
             edge_colors.update({(i_pos1, i_pos2):'k'})
             edge_styles.update({(i_pos1, i_pos2):'solid'})
         else:

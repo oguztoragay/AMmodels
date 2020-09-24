@@ -39,12 +39,18 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     for i in m.nfree:
         m.d[i].fix(0)
     m.x   = Var(m.LE, m.PR, domain = Binary, initialize = 0) # index i is used for the elements or beams
+    oneone = [2,10,18]
+#    for i in m.LE:
+#        if i in oneone:
+#            m.x[i,1].fix(1)
+#        else:
+#            m.x[i,2].fix(0)
     m.y   = Var(m.LN, domain = Binary, initialize = 0) # indicator of each nodes to be connected to the structure
     m.v   = Var(m.LE, {0,1,2}, m.PR, initialize = 0) # Elongation or contraction of beam i with profile p
     m.s   = Var(m.LE, {0,1,2}, initialize = 0) # forces (axial, shear or rotational) on each bar
     m.Q   = Param(m.LE, initialize = 0, mutable = True) # forces (axial or rotational) on each degree of freedom
     m.RF  = Var(m.nfree, initialize = 0) # Reaction forces on the boundary condition fixed degrees of freedom
-    m.M   = Param(initialize = 1000) # Big M for the purpose of linearization of logic constraint
+    m.M   = Param(initialize = 100000) # Big M for the purpose of linearization of logic constraint
 # --------------------------------------------------------------OBJECTIVE---------------------------------------------------------------------------
     m.obj = Objective(expr = sum([elements[i].profile[p].vol*m.x[i,p] for i in m.LE for p in m.PR]), sense = minimize) # Objective function minimizing the volum
 #-------------------------------------------------------------CONSTRAINTS---------------------------------------------------------------------------    
@@ -67,8 +73,8 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     m.cons2 = ConstraintList()
     for i in m.LE:
         for j in {0,1,2}:
-            m.cons2.add(sum(m.v[i,j,p] for p in m.PR-{0})-sum(elements[i].B[j][d]*m.d[d] for d in m.dofs) <= m.M*(1-sum(m.x[i,p] for p in m.PR)))
-            m.cons2.add(sum(m.v[i,j,p] for p in m.PR-{0})-sum(elements[i].B[j][d]*m.d[d] for d in m.dofs) >= -1*m.M*(1-sum(m.x[i,p] for p in m.PR)))
+            m.cons2.add(sum(m.v[i,j,p] for p in m.PR-{0})-sum(elements[i].B[j][d]*m.d[d] for d in m.dofs) <= m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
+            m.cons2.add(sum(m.v[i,j,p] for p in m.PR-{0})-sum(elements[i].B[j][d]*m.d[d] for d in m.dofs) >= -1*m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
 #----------------------------------------------------------    
     m.cons3 = ConstraintList()
     for i in m.LE:
@@ -168,7 +174,7 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     else:
         solver_manager = SolverManagerFactory('neos')
         solution = solver_manager.solve(m, solver=sol)   
-#    log_infeasible_constraints(m)
+    log_infeasible_constraints(m)
 #    solution = solver_manager.solve(m, solver='cplex', options={'integrality':1e-09})
 #----------------------------------------------------------
     for i in m.LE:

@@ -13,7 +13,7 @@ if __name__ == '__main__':
         E = 250000
         smax = 100000
         dmax = 0.25
-        Load = [100,250,500]#,
+        Load = [1000,1250,1500]
         for ii in Load:
             for jj in r1_set:
                 ins = (3,3,[0,2],[7],[ii])

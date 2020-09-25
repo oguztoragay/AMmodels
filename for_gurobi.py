@@ -42,7 +42,7 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     obj = gb.quicksum(ar[i]*le[i] for i in LE)
     m.setObjective(obj, GRB.MINIMIZE)
 #-------------------------------------------------------------CONSTRAINTS---------------------------------------------------------------------------      
-    for satr in free:
+    for satr in free: # equilibrium equations
         temp1 = 0; temp2 = 0; temp3 = 0
         for i in LE:
             temp1 += celements[i].KE[0]*ar[i]  *celements[i].B[0][satr]*gb.quicksum(celements[i].B[0][di0]*d[di0] for di0 in free)
@@ -55,14 +55,14 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
 #-----------------------------------------------------------------------------------------      
     temp1 = [x for x in LN if x not in boundary]
     LNf = [x for x in temp1 if x not in load_node]
-    for i in LNf:
+    for i in LNf: # displacement on each DoF limited by the existance of at least one beam
         dofs = nodes[i].dof
         ww = nodes[i].where
         for ii in dofs:
-            m.addConstr((d[ii]<=sum(ar[j] for j in ww)), name='dispULimit')
-            m.addConstr((d[ii]>=-sum(ar[j] for j in ww)), name='disLLimit')
+            m.addConstr((d[ii]<=sum(ar[j] for j in ww)*5), name='dispULimit')
+            m.addConstr((d[ii]>=-sum(ar[j] for j in ww)*5), name='disLLimit')
 #-----------------------------------------------------------------------------------------   
-    for i in LE:
+    for i in LE: # Removing the cross-overing beams
         for j in range(i+1, len(LE)):
             seg1 = LineString([[celements[i].nodei.x, celements[i].nodei.y], [celements[i].nodej.x, celements[i].nodej.y]])
             seg2 = LineString([[celements[j].nodei.x, celements[j].nodei.y], [celements[j].nodej.x, celements[j].nodej.y]])
@@ -71,7 +71,7 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
             if int_pt == True and toucher == False:
                m.addConstr(ar[i]*ar[j] == 0, name='Crossing')
 #-----------------------------------------------------------------------------------------               
-#    for i in LE:
+#    for i in LE: # Stress bounds tried...
 #        dofi = nodes[celements[i].orient[0]].dof
 #        dofj = nodes[celements[i].orient[1]].dof
 #        c = celements[i].cosan

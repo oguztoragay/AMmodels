@@ -39,7 +39,7 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     for i in m.nfree:
         m.d[i].fix(0)
     m.x   = Var(m.LE, m.PR, domain = Binary, initialize = 0) # index i is used for the elements or beams
-    oneone = [2,10,18]
+#    oneone = [2,10,18]
 #    for i in m.LE:
 #        if i in oneone:
 #            m.x[i,1].fix(1)
@@ -54,7 +54,8 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 # --------------------------------------------------------------OBJECTIVE---------------------------------------------------------------------------
     m.obj = Objective(expr = sum([elements[i].profile[p].vol*m.x[i,p] for i in m.LE for p in m.PR]), sense = minimize) # Objective function minimizing the volum
 #-------------------------------------------------------------CONSTRAINTS---------------------------------------------------------------------------    
-    m.cons1 = ConstraintList()
+    
+    m.cons1 = ConstraintList() # Equilibrium equations
     for satr in m.dofs:
         temp1 = 0
         for i in m.LE:
@@ -69,53 +70,71 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
         else:
             m.cons1.add(temp1 == f[satr])
 #            m.cons1.add(temp1 >= f[satr])
+
 #----------------------------------------------------------
-    m.cons2 = ConstraintList()
+
+    m.cons2 = ConstraintList() # When there is a beam it's elongation should be equal to the difference between displacement in its two nodes.
     for i in m.LE:
         for j in {0,1,2}:
             m.cons2.add(sum(m.v[i,j,p] for p in m.PR-{0})-sum(elements[i].B[j][d]*m.d[d] for d in m.dofs) <= m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
             m.cons2.add(sum(m.v[i,j,p] for p in m.PR-{0})-sum(elements[i].B[j][d]*m.d[d] for d in m.dofs) >= -1*m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
+
 #----------------------------------------------------------    
-    m.cons3 = ConstraintList()
+
+    m.cons3 = ConstraintList() # Force on each beam should be equal to elongation x KE (scalar-3 values for each profile)
     for i in m.LE:
         for j in {0,1,2}:
             m.cons3.add(elements[i].profile[p].KE[j]*(sum(m.v[i,j,p] for p in m.PR-{0})) - m.s[i,j] <= m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
             m.cons3.add(elements[i].profile[p].KE[j]*(sum(m.v[i,j,p] for p in m.PR-{0})) - m.s[i,j] >= -1*m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
-##----------------------------------------------------------             
-    m.cons4 = ConstraintList()
+
+#----------------------------------------------------------             
+
+    m.cons4 = ConstraintList() # Constraint to correlate cross-sectional area and bearable force
     for i in m.LE:
         for j in {0,1,2}:
             m.cons4.add(m.s[i,j]<= m.M*(sum(elements[i].profile[p].area*m.x[i,p] for p in m.PR)))#-{0}
             m.cons4.add(m.s[i,j]>= -m.M*(sum(elements[i].profile[p].area*m.x[i,p] for p in m.PR)))#-{0}
+
 #----------------------------------------------------------             
-    m.cons5 = ConstraintList()
+
+    m.cons5 = ConstraintList() # Correlate existance of a beam with the force on that
     for i in m.LE:
         for p in m.PR-{0}:
             for j in {0,1,2}:
                 m.cons5.add(m.v[i,j,p] <= m.M*m.x[i,p])
                 m.cons5.add(m.v[i,j,p] >= -1*m.M*m.x[i,p])
+
 #----------------------------------------------------------
-    m.cons6 = ConstraintList()
+
+    m.cons6 = ConstraintList() # Each beam can only have one cross sectional area from the candidate list 
     for i in m.LE:
         m.cons6.add(sum(m.x[i,p] for p in m.PR) <= 1)
+
 #----------------------------------------------------------
-    m.cons7 = ConstraintList()
+
+    m.cons7 = ConstraintList() # If x binary for a beam equal to 1, y binary for both end nodes should be equal to 1. 
     for i in m.LE:
         m.cons7.add(sum(m.x[i,p] for p in m.PR-{0}) <= 0.5*(m.y[elements[i].nodei.name] + m.y[elements[i].nodej.name]))
+
 #----------------------------------------------------------        
-    m.cons8 = ConstraintList()
+
+    m.cons8 = ConstraintList() # Degree of each node (except load and boundary nodes) should be greater than 1 to remove the hanging beams.
     for i in m.LN-boundary-load_node:
         elemlist = nodes[i].where
         m.cons8.add(sum(m.x[elem,p] for p in m.PR-{0} for elem in elemlist) >= 2*m.y[i]) 
+
 #----------------------------------------------------------        
-    m.cons9 = ConstraintList()
+
+    m.cons9 = ConstraintList() # Absoulute value of displacement in each DoF should be less than max possible displacement
     for i in m.LN-boundary:
         doflist = nodes[i].dof
         for dof in doflist:
             m.cons9.add(m.d[dof] <= m.y[i]*m.dmax)
             m.cons9.add(m.d[dof] >= -1*m.y[i]*m.dmax)
+
 #----------------------------------------------------------
-    m.cons10 = ConstraintList()        
+
+    m.cons10 = ConstraintList() # Removing over-crossing in the beams.      
     for i in m.LE:
         for j in range(i+1, len(m.LE)):
             seg1 = LineString([[elements[i].nodei.x, elements[i].nodei.y], [elements[i].nodej.x, elements[i].nodej.y]])
@@ -127,7 +146,7 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
                     m.cons10.add(m.x[i,it[0]] + m.x[j,it[1]] <= 1)
             else:
                 Constraint.Skip
-#    m.write('salamat','lp')
+#    m.write('model_linear','lp')
 # %% Solving the MILP model
     if wheresol == 'PC':
         if sol == 'CPLEX':

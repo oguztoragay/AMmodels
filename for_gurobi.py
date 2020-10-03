@@ -69,22 +69,9 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
             int_pt = seg1.intersects(seg2)
             toucher = seg1.touches(seg2)
             if int_pt == True and toucher == False:
-               m.addConstr(ar[i]*ar[j] == 0, name='Crossing')
-#-----------------------------------------------------------------------------------------               
-#    for i in LE: # Stress bounds tried...
-#        dofi = nodes[celements[i].orient[0]].dof
-#        dofj = nodes[celements[i].orient[1]].dof
-#        c = celements[i].cosan
-#        s = celements[i].sinan
-#        di = c*d[dofi[0]]+s*d[dofi[1]]
-#        dj = c*d[dofj[0]]+s*d[dofj[1]]   
-#        m.addConstr((dj-di)*E<=smax*ar[i])#(celements[i].KE[0])
-#        m.addConstr(-smax*ar[i]<=(dj-di)*E)           
+               m.addConstr(ar[i]*ar[j] == 0, name='Crossing')            
     m.update() 
-#    m.display()
 # %% Solving MINLP model    
-#    m.linearize()
-#    m.setParam(GRB.Param.Threads, 20.0)
     m.setParam(GRB.Param.TimeLimit, 36000)
     m.optimize()
     weight1 = m.objVal
@@ -130,5 +117,4 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
     for nn in boundary:
         doffs = nodes[nn].dof
         print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,RF[doffs[0]],RF[doffs[1]],RF[doffs[2]]))   
-#    print(Y)
     return(Y,weight1)

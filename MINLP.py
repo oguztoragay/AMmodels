@@ -67,12 +67,6 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
         m.cons2.add(m.a[i] <= m.amax*m.x[i])
         m.cons2.add(m.a[i] >= m.amin*m.x[i])
 #-----------------------------------------------------------------------------------------
-#    m.cons3 = ConstraintList()
-#    for i in m.LE:
-#        for j in {0,1,2}:
-#            m.cons3.add(m.v[i,j]-sum(celements[i].B[j][di]*m.d[di] for di in m.dofs) <= m.M*(1-m.x[i]))
-#            m.cons3.add(m.v[i,j]-sum(celements[i].B[j][di]*m.d[di] for di in m.dofs) >= -1*m.M*(1-m.x[i]))
-#-----------------------------------------------------------------------------------------
     m.cons4 = ConstraintList()
     for i in m.LN-boundary-load_node:
         elemlist = nodes[i].where
@@ -97,24 +91,9 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
             if int_pt == True and toucher == False:
                m.cons7.add(m.x[i] + m.x[j] <= 1)
             else:
-                Constraint.Skip
-#-----------------------------------------------------------------------------------------                  
-#    m.cons14 = ConstraintList()
-#    for i in m.LE:
-#        dofi = nodes[celements[i].orient[0]].dof
-#        dofj = nodes[celements[i].orient[1]].dof
-#        c = celements[i].cosan
-#        s = celements[i].sinan
-#        di = c*m.d[dofi[0]]+s*m.d[dofi[1]]
-#        dj = c*m.d[dofj[0]]+s*m.d[dofj[1]]   
-#        m.cons14.add((dj-di)*(celements[i].KE[0])<=m.smax)
-#        m.cons14.add(-m.smax<=(dj-di)*(celements[i].KE[0]))                
+                Constraint.Skip               
 # %% Solving MINLP model
-    if wheresol == 'NEOS':
-        solver_manager = SolverManagerFactory('neos')
-        solution = solver_manager.solve(m, solver = sol)
-        weight1 = value(m.z)
-    elif wheresol == 'PC':
+    if wheresol == 'PC':
         solver = SolverFactory(sol)
         if sol == 'BARON':
             solver.options['MaxIter'] = -1
@@ -124,37 +103,6 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
             solver.options['deltaterm'] = 1
             solver.options['deltat'] = 3600
             solver.options['deltaa'] = 0.5
-#            solver.options['numsol'] = 1
-        elif sol == 'knitro':
-            solver.options['ms_enable'] = 1
-            solver.options['ms_maxsolves'] = 1000
-#            solver.options['ms_maxtime_cpu'] = 120
-            solver.options['ms_terminate'] = 1 # Terminate after the first local optimal solution is found or ms_maxsolves, whichever comes first.
-            solver.options['outlev'] = 2
-            solver.options['par_msnumthreads'] = 7
-            solver.options['par_numthreads'] = 7
-            solver.options['maxtime_real'] = 3600
-            solver.options['mip_heuristic_maxit'] = 10000
-            solver.options['mip_heuristic_terminate'] = 1 #  Terminate at first feasible point or iteration limit (whichever comes first).
-            solver.options['mip_maxnodes'] = 50000
-            solver.options['mip_heuristic'] = 3 # based on MPEC
-#            solver.options['maxit'] = 100000
-        elif sol == 'SHOT':
-            solver.options['Output.Console.DualSolver.Show'] = True
-            solver.options['Model.Reformulation.Constraint.PartitionNonlinearTerms'] = True
-            solver.options['Model.Convexity.AssumeConvex'] = False
-#        elif sol == 'APOPT':
-#            solver = SolverFactory(sol,executable='C:\\Program Files\\APOPT\\apopt.py')
-#            solver.set_executable(validate=False)
-#            solver.options['minlp_maximum_iterations']= 500
-#            solver.options['minlp_max_iter_with_int_sol']= 10
-#            solver.options['nlp_maximum_iterations']= 50
-#            solver.options['minlp_integer_tol']= 0.05
-#            solver.options['minlp_gap_tol']= 0.01
-#            solver.options['minlp_as_nlp']=1
-#            solution = solver.solve(m)
-        elif sol == 'gurobi_ampl':
-            solver.options['load_solutions'] = False
         solution = solver.solve(m, tee = True)
         weight1 = value(m.z)
         print('\n ************** NLP is done with status "{}"! Weight is "{}" and solver is "{}"**************.'.format(solution.solver.termination_condition, np.round(weight1,4), sol))

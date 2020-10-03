@@ -1,4 +1,4 @@
-# 06/24/2020 Most updated MILP
+# 06/24/2020 Most updated MILP solved on VM
 import warnings
 warnings.filterwarnings("ignore", category = UserWarning)
 import numpy as np
@@ -6,7 +6,6 @@ from shapely.geometry import LineString
 from pyomo.environ import Param, ConcreteModel, Var, Objective, ConstraintList, value, minimize, Binary, Constraint
 from pyomo.opt import SolverFactory
 from pyomo.opt.parallel import SolverManagerFactory
-# import winsound
 from pyomo.util.infeasible import log_infeasible_constraints
 import pandas as pd
 import itertools
@@ -39,12 +38,6 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     for i in m.nfree:
         m.d[i].fix(0)
     m.x   = Var(m.LE, m.PR, domain = Binary, initialize = 0) # index i is used for the elements or beams
-#    oneone = [2,10,18]
-#    for i in m.LE:
-#        if i in oneone:
-#            m.x[i,1].fix(1)
-#        else:
-#            m.x[i,2].fix(0)
     m.y   = Var(m.LN, domain = Binary, initialize = 0) # indicator of each nodes to be connected to the structure
     m.v   = Var(m.LE, {0,1,2}, m.PR, initialize = 0) # Elongation or contraction of beam i with profile p
     m.s   = Var(m.LE, {0,1,2}, initialize = 0) # forces (axial, shear or rotational) on each bar
@@ -54,7 +47,6 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 # --------------------------------------------------------------OBJECTIVE---------------------------------------------------------------------------
     m.obj = Objective(expr = sum([elements[i].profile[p].vol*m.x[i,p] for i in m.LE for p in m.PR]), sense = minimize) # Objective function minimizing the volum
 #-------------------------------------------------------------CONSTRAINTS---------------------------------------------------------------------------    
-    
     m.cons1 = ConstraintList() # Equilibrium equations
     for satr in m.dofs:
         temp1 = 0
@@ -65,75 +57,54 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
                          (elements[i].profile[p].KE[2])*(m.v[i,2,p])*(elements[i].B[2][satr])
         if satr in m.nfree:
             m.cons1.add(temp1 == m.RF[satr])
-#            m.cons1.add(temp1 >= m.RF[satr])
-#            Constraint.Skip
         else:
             m.cons1.add(temp1 == f[satr])
-#            m.cons1.add(temp1 >= f[satr])
-
 #----------------------------------------------------------
-
     m.cons2 = ConstraintList() # When there is a beam it's elongation should be equal to the difference between displacement in its two nodes.
     for i in m.LE:
         for j in {0,1,2}:
             m.cons2.add(sum(m.v[i,j,p] for p in m.PR-{0})-sum(elements[i].B[j][d]*m.d[d] for d in m.dofs) <= m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
             m.cons2.add(sum(m.v[i,j,p] for p in m.PR-{0})-sum(elements[i].B[j][d]*m.d[d] for d in m.dofs) >= -1*m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
-
 #----------------------------------------------------------    
-
     m.cons3 = ConstraintList() # Force on each beam should be equal to elongation x KE (scalar-3 values for each profile)
     for i in m.LE:
         for j in {0,1,2}:
             m.cons3.add(elements[i].profile[p].KE[j]*(sum(m.v[i,j,p] for p in m.PR-{0})) - m.s[i,j] <= m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
             m.cons3.add(elements[i].profile[p].KE[j]*(sum(m.v[i,j,p] for p in m.PR-{0})) - m.s[i,j] >= -1*m.M*(1-sum(m.x[i,p] for p in m.PR-{0})))
-
 #----------------------------------------------------------             
-
     m.cons4 = ConstraintList() # Constraint to correlate cross-sectional area and bearable force
     for i in m.LE:
         for j in {0,1,2}:
             m.cons4.add(m.s[i,j]<= m.M*(sum(elements[i].profile[p].area*m.x[i,p] for p in m.PR)))#-{0}
             m.cons4.add(m.s[i,j]>= -m.M*(sum(elements[i].profile[p].area*m.x[i,p] for p in m.PR)))#-{0}
-
 #----------------------------------------------------------             
-
     m.cons5 = ConstraintList() # Correlate existance of a beam with the force on that
     for i in m.LE:
         for p in m.PR-{0}:
             for j in {0,1,2}:
                 m.cons5.add(m.v[i,j,p] <= m.M*m.x[i,p])
                 m.cons5.add(m.v[i,j,p] >= -1*m.M*m.x[i,p])
-
 #----------------------------------------------------------
-
     m.cons6 = ConstraintList() # Each beam can only have one cross sectional area from the candidate list 
     for i in m.LE:
         m.cons6.add(sum(m.x[i,p] for p in m.PR) <= 1)
-
 #----------------------------------------------------------
-
     m.cons7 = ConstraintList() # If x binary for a beam equal to 1, y binary for both end nodes should be equal to 1. 
     for i in m.LE:
         m.cons7.add(sum(m.x[i,p] for p in m.PR-{0}) <= 0.5*(m.y[elements[i].nodei.name] + m.y[elements[i].nodej.name]))
-
 #----------------------------------------------------------        
-
     m.cons8 = ConstraintList() # Degree of each node (except load and boundary nodes) should be greater than 1 to remove the hanging beams.
     for i in m.LN-boundary-load_node:
         elemlist = nodes[i].where
         m.cons8.add(sum(m.x[elem,p] for p in m.PR-{0} for elem in elemlist) >= 2*m.y[i]) 
-
 #----------------------------------------------------------        
-
     m.cons9 = ConstraintList() # Absoulute value of displacement in each DoF should be less than max possible displacement
     for i in m.LN-boundary:
         doflist = nodes[i].dof
         for dof in doflist:
             m.cons9.add(m.d[dof] <= m.y[i]*m.dmax)
             m.cons9.add(m.d[dof] >= -1*m.y[i]*m.dmax)
-
 #----------------------------------------------------------
-
     m.cons10 = ConstraintList() # Removing over-crossing in the beams.      
     for i in m.LE:
         for j in range(i+1, len(m.LE)):
@@ -149,51 +120,11 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 #    m.write('model_linear','lp')
 # %% Solving the MILP model
     if wheresol == 'PC':
-        if sol == 'CPLEX':
-            msolver = SolverFactory('CPLEX')
-#            msolver.options['threads'] = 8
-#            msolver.options['display'] = 2 #for each iteration
-            msolver.options['timelimit'] = 36000
-        elif sol == 'GUROBI':
-            msolver = SolverFactory('GUROBI')
-#            msolver.options['threads'] = 20
-#            msolver.options['concurrentmip'] = 8
-            msolver.options['timelim'] = 36000
-            #msolver.options['iterlim'] = default no limit
-        elif sol == 'XPRESS':
-            msolver = SolverFactory('XPRESS')
-#            msolver.options['miptol'] =1e-6  #integer feasibility tolerance; default = 5e-6]
-            msolver.options['maxtime'] = 36000   # n < 0 ==> stop LP or MIP search after -n seconds,
-                                             # n = 0 ==> no time limit (default),
-                                             # n > 0 ==> for MIP problems, stop after n seconds if a feasible solution has been found;
-                                                # otherwise continue until a feasible solution has been found.
-#            msolver.options['threads'] = 8   # default number of threads to use: -1 = automatic choice (based on hardware),  n > 0 ==> use n threads
-#            msolver.options['lpiterlimit'] = ... # simplex iteration limit; default = 2147483647 = 2^31 - 1
-#            msolver.options['lplog'] = 100   # frequency of printing simplex iteration log; default = 100
-        elif sol == 'octeract-engine':
-            msolver = SolverFactory('octeract-engine')
-            # msolver.options['LP_SOLVER'] = 'GUROBI'
-            msolver.options['MILP_SOLVER'] = 'gurobi-ampl'
-        else:
-            print('What else?')
-        solution = msolver.solve(m, tee=True)
-    elif wheresol == 'VM':
         if sol == 'GUROBI':
-            msolver = SolverFactory('gurobi')
-            msolver.options['threads'] = 24
-            msolver.options['concurrentmip'] = 8
+            msolver = SolverFactory('GUROBI')
             msolver.options['timelim'] = 36000
-            #msolver.options['iterlim'] = default no limit
-        elif sol == 'octeract-engine':
-            msolver = SolverFactory('octeract-engine')
-            # msolver.options['LP_SOLVER'] = 'gurobi'
-            msolver.options['MILP_SOLVER'] = 'gurobi'
-            
-        solution = msolver.solve(m, tee=False)
-    else:
-        solver_manager = SolverManagerFactory('neos')
-        solution = solver_manager.solve(m, solver=sol)   
-    log_infeasible_constraints(m)
+        solution = msolver.solve(m, tee=True) 
+#    log_infeasible_constraints(m)
 #    solution = solver_manager.solve(m, solver='cplex', options={'integrality':1e-09})
 #----------------------------------------------------------
     for i in m.LE:
@@ -231,6 +162,5 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 #    print('-------------------------------------------( REACTIONS )---------------------------------------')
     for nn in boundary:
         doffs = nodes[nn].dof
-        print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,np.round(m.RF[doffs[0]].value,4),np.round(m.RF[doffs[1]].value,4),np.round(m.RF[doffs[2]].value,4)))
-    # duration = 300; fres = 1000; winsound.Beep(fres, duration)    
+        print('RF in node {} is: in X direction: "{}", in Y direction: "{}" and rotation: "{}"'.format(nn,np.round(m.RF[doffs[0]].value,4),np.round(m.RF[doffs[1]].value,4),np.round(m.RF[doffs[2]].value,4)))   
     return(X, weight)

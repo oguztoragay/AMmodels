@@ -8,6 +8,8 @@ from pyomo.opt import SolverFactory
 from pyomo.opt.parallel import SolverManagerFactory
 from pyomo.util.infeasible import log_infeasible_constraints
 import pandas as pd
+from pyutilib.services import TempfileManager
+
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -94,16 +96,23 @@ def NLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
                 Constraint.Skip               
 # %% Solving MINLP model
     if wheresol == 'PC':
-        solver = SolverFactory(sol)
+        solver = SolverFactory('BARON',executable='/home/oguz/misc/ampl2/baron',solver_io = 'nl')
+#        solver = SolverFactory('KNITRO',executable='/home/oguz/misc/ampl2/knitro')
+#        solver = SolverFactory('octeract-engine')
+#        solver = SolverFactory('lgo')
         if sol == 'BARON':
             solver.options['MaxIter'] = -1
-            solver.options['threads'] = 7
-            solver.options['epsa'] = 0.001
-            solver.options['MaxTime'] = 18000
-            solver.options['deltaterm'] = 1
-            solver.options['deltat'] = 3600
-            solver.options['deltaa'] = 0.5
-        solution = solver.solve(m, tee = True)
+            solver.options['threads'] = 48
+            solver.options['maxtime'] = -1
+#            solver.options['lpsolver'] = 'cplex'
+            solver.options['outlev'] = 1
+#            solver.options['epsa'] = 0.001
+#            solver.options['MaxTime'] = 36000
+#            solver.options['deltaterm'] = 1
+#            solver.options['deltat'] = 36000
+#            solver.options['deltaa'] = 0.5
+       # TempfileManager.tempdir = "/home/oguz/misc/output_directory"
+        solution = solver.solve(m, tee = True, keepfiles = True)
         weight1 = value(m.z)
         print('\n ************** NLP is done with status "{}"! Weight is "{}" and solver is "{}"**************.'.format(solution.solver.termination_condition, np.round(weight1,4), sol))
         log_infeasible_constraints(m)

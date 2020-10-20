@@ -121,8 +121,9 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
 # %% Solving the MILP model
     if wheresol == 'PC':
         if sol == 'GUROBI':
-            msolver = SolverFactory('GUROBI')
-            msolver.options['timelim'] = 36000
+#            msolver = SolverFactory('CPLEX',executable='/home/oguz/misc/ampl2/cplex')
+            msolver = SolverFactory('gurobi')
+            #msolver.options['timelim'] = 36000
         solution = msolver.solve(m, tee=True) 
 #    log_infeasible_constraints(m)
 #    solution = solver_manager.solve(m, solver='cplex', options={'integrality':1e-09})

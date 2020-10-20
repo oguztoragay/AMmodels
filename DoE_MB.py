@@ -13,27 +13,26 @@ if __name__ == '__main__':
         E = 250000
         smax = 100000
         dmax = 0.25
-        Load = [100, 250, 500, 750, 1000]
+        Load = [100,250,500]
         for ii in Load:
             for jj in r1_set:
-#                ins = (3,3,[0,2],[7],[ii])
-                ins = (3,3,[0,1,3],[8],[ii])
-#                ins = (3,3,[0,3,6],[5],[-ii])
+#                ins = (3,3,[0,1,3],[8],[ii])
+                ins = (3,3,[0,2],[7],[ii])
                 GS_ins = GS.Generate(ins[0],ins[1],ins[2],ins[3],ins[4],E,jj)
                 nodes = GS_ins.nodes     
                 elements = GS_ins.elements
                 celements = GS_ins.celements
                 localtime = time.asctime( time.localtime(time.time()))
                 print(':::: Current Time :::: {}'.format(localtime))
-                LPstart = time.time()
-                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'PC')
-                TLP = np.round(time.time()-LPstart,3)
-                Draw_MILP(nodes, elements, X, W, TLP, ii, jj,'GB',dmax)
+#                LPstart = time.time()
+#                X, W = MILPpyo(E, nodes, elements, jj, dmax, smax, 'GUROBI', 'PC')
+#                TLP = np.round(time.time()-LPstart,3)
+#                Draw_MILP(nodes, elements, X, W, TLP, ii, jj,'GB',dmax)
             #================================================================================
-            QPstart = time.time()
-            Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'GUROBI', 'PC')
-            TNLP = np.round(time.time()-QPstart,3)
-            Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'QG', dmax)
+#            QPstart = time.time()
+#            Z, W = GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, 'GUROBI', 'PC')
+#            TNLP = np.round(time.time()-QPstart,3)
+#            Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'QG', dmax)
             #================================================================================
             NLPstart = time.time()
             Z, W = NLPpyo(E, nodes, celements, r2_set, dmax, smax, 'BARON', 'PC')
@@ -41,3 +40,14 @@ if __name__ == '__main__':
             Draw_MINLP(nodes, celements, Z, W, TNLP, ii, 'BA', dmax)
     except ValueError as e:
         print(e)
+
+#       All the structures for DoE:
+#       1) ins = (3,3,[0,2],[7],[ii]) 
+#       2) ins = (3,3,[0,1,3],[8],[ii])
+#       3) ins = (3,3,[0,3,6],[5],[-ii])
+#       4) ins = (4,4,[0,3]),[13,14],[ii,ii])
+#       5) ins = (4,4,[0,1,4],[15],[ii])
+#       6) ins = (4,4,[0,4,8,12],[7],[-ii])
+#       7) ins = (5,5,[0,4],[22],[ii])
+#       8) ins = (5,5,[0,1,2,5,10],[24],[ii])
+#       9) ins = (5,5,[0,5,10,15,20],[14],[-ii])

@@ -72,7 +72,7 @@ def GBNLPpyo(E, nodes, celements,r2_set, dmax, smax, sol, wheresol):
                m.addConstr(ar[i]*ar[j] == 0, name='Crossing')            
     m.update() 
 # %% Solving MINLP model    
-    m.setParam(GRB.Param.TimeLimit, 36000)
+#    m.setParam(GRB.Param.TimeLimit, 72000)
     m.optimize()
     weight1 = m.objVal
     force_loc = {}

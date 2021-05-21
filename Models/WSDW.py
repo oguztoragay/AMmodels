@@ -1,5 +1,3 @@
-###### Updated on 09/12/2020 for DoE
-###### Updated on 01/27/2021 for Paper
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -59,11 +57,7 @@ def Draw_Warm(nodes, elements, X, TWS, W, load, fname, foldername):
     edge_styles1 = list(edge_styles.values())
     edge_widths1 = list(edge_widths.values())
     nx.draw_networkx_edges(G, pos, edge_color=edge_colors1, width=edge_widths1, ax=ax, style=edge_styles1)
-    # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_color='r', alpha=1,
-    #                              rotate=True,
-    #                              label_pos=0.4)
     plt.axis('off')
-    # plt.suptitle('|Stime:' + str(TWS) + '|Weight:' + str(np.round(W, 4)) + '|Load:' + str(load), fontsize=11)
     plt.show()
     try:
         os.mkdir(foldername)
@@ -103,7 +97,6 @@ def Draw_MILP(nodes, elements, X, S, W, TLP, ii, jj, solver, dmax, fname, folder
             else:
                 node_colors.append('lightgrey')
     nx.draw_networkx_nodes(G, pos, node_color=node_colors, alpha=1, node_size=200, node_shape='o', linewidths=0)
-    # nx.draw_networkx_labels(G, pos, node_names, font_size=10, font_color='#FFFF00')
     ## Drawing the edges ----------------------------
     edge_labels = {}
     edge_widths = {}
@@ -126,21 +119,8 @@ def Draw_MILP(nodes, elements, X, S, W, TLP, ii, jj, solver, dmax, fname, folder
     edge_styles1 = list(edge_styles.values())
     edge_widths1 = list(edge_widths.values())
     nx.draw_networkx_edges(G, pos, edge_color=edge_colors1, width=edge_widths1, ax=ax, style=edge_styles1)
-    # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_color='r', alpha=1, rotate=True,
-    #                              label_pos=0.4)
     plt.axis('off')
-    # plt.suptitle('|Dmax:' + str(dmax) + '|Solver:' + solver + '|Stime:' + str(TLP) + '|Weight:' + str(
-    #     np.round(W, 4)) + '\nCS:' + str(jj) + '|Load:' + str(ii), fontsize=11)
-#    plt.suptitle('Model: ' + str('CS'+str(a+1)) +
-#                 '\nTime: ' + str(TLP) +
-#                 '\nWeight: ' + str(np.round(W, 2)), fontsize=12, ha='left', x=0.1)
     plt.show()
-#    parent_dir='C:/Users/ozt0008/Documents/OneDrive - Auburn University/1 AM/Models/model PYTHON/7 January 2021/01.27.2021/'
-#    path = os.path.join(parent_dir, foldername)
-#    try:
-#        os.mkdir(foldername)
-#    except OSError as error:
-#        print(error)
     fig.savefig(str(foldername+'/'+fname+'.pdf'), bbox_inches='tight', pad_inches=0)
 
 def Draw_MINLP(nodes, celements, Y, W, TNLP, ii, solver, dmax, fname, foldername):
@@ -175,7 +155,6 @@ def Draw_MINLP(nodes, celements, Y, W, TNLP, ii, solver, dmax, fname, foldername
             else:
                 node_colors.append('lightgrey')
     nx.draw_networkx_nodes(G, pos, node_color=node_colors, alpha=1, node_size=200, node_shape='o', linewidths=0)
-    # nx.draw_networkx_labels(G, pos, node_names, font_size=10, font_color='#FFFF00')
     ## Drawing the edges ----------------------------
     edge_labels = {}
     edge_widths = {}
@@ -198,13 +177,7 @@ def Draw_MINLP(nodes, celements, Y, W, TNLP, ii, solver, dmax, fname, foldername
     edge_styles1 = list(edge_styles.values())
     edge_widths1 = list(edge_widths.values())
     nx.draw_networkx_edges(G, pos, edge_color=edge_colors1, width=edge_widths1, ax=ax, style=edge_styles1)
-    # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_color='r', alpha=1, rotate=True, label_pos=0.4)
     plt.axis('off')
-    # plt.suptitle('|Dmax:' + str(dmax) + '|Solver:' + solver + '|Stime:' + str(TNLP) + '|Weight:' + str(
-    #     np.round(W, 4)) + '\nLoad:' + str(ii), fontsize=11)
-#    plt.suptitle('Model: ' + solver +
-#                 '\nTime: ' + str(TNLP) +
-#                 '\nWeight: ' + str(np.round(W, 2)), fontsize=12, ha='left', x=0.1)
     plt.show()
     fig.savefig(str(foldername+'/'+fname+'.pdf'), bbox_inches='tight', pad_inches=0)
 

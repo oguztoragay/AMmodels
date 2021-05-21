@@ -1,4 +1,3 @@
-# 01/27/2021
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 import numpy as np
@@ -112,8 +111,9 @@ def NLPpyo(E, nodes, celements, r2_set, dmax, smax, sol, wheresol):
                 m.cons6.add(m.x[i] + m.x[j] <= 1)
             else:
                 Constraint.Skip
+    # -----------------------------------------------------------------------------------------
     # %% Solving MINLP model
-    solver = SolverFactory('BARON')
+	solver = SolverFactory('BARON')
     solver.options['MaxIter'] = -1
     solver.options['threads'] = 16
     solver.options['MaxTime'] = 7200
@@ -127,7 +127,6 @@ def NLPpyo(E, nodes, celements, r2_set, dmax, smax, sol, wheresol):
     TNLP = np.round(time.time()-NLPstart, 3)
     data1_minlp = solution.Problem._list
     data2_minlp = solution.solver._list
-#    log_infeasible_constraints(m)
     weight1 = value(m.z)
     print('\n ************** NLP is done with status "{}"! Weight is "{}" and solver is "{}"**************.'.format(
             solution.solver.termination_condition, np.round(weight1, 4), sol))

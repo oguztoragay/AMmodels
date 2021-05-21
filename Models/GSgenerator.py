@@ -49,7 +49,6 @@ class Generate:  # Ground structure generator
                     #                    print(temp_celement.KE)
                     elem += 1
 
-
 # --------------------------------------------------------------------------------------
 class Node:
     def __init__(self, node_name, x, y, tip, load):
@@ -73,7 +72,6 @@ class Node:
             return [0, 0, 0]
         else:
             return [0, self.load, 0]
-
 
 # --------------------------------------------------------------------------------------
 class Element:
@@ -121,7 +119,6 @@ class Element:
     @property
     def _sinan(self):
         return (self.nodej.y - self.nodei.y) / self.length
-
 
 # --------------------------------------------------------------------------------------
 class Profile:
@@ -188,9 +185,8 @@ class Profile:
     def _B(self):
         B = [self.b1g.T.flatten(), self.b2g.T.flatten(), self.b3g.T.flatten()]
         return B
+
     # --------------------------------------------------------------------------------------
-
-
 class CElement:
     def __init__(self, nodei, nodej, M, N, elem, E):
         self.nodei = nodei
@@ -223,17 +219,6 @@ class CElement:
         self.B = self._B
         self.bloc = self._Bloc
 
-    #    @property
-    #    def _smatrix(self):
-    #        ctemp = np.zeros([self.b1g.size,self.b1g.size])
-    #        dim1 = self.b1g.size
-    #        b1 = [i*self.ke1 for i in np.dot(self.b1g, self.b1g.T)]
-    #        b2 = [i*self.ke2 for i in np.dot(self.b2g, self.b2g.T)]
-    #        b3 = [i*self.ke3 for i in np.dot(self.b3g, self.b3g.T)]
-    #        for i in range(dim1):
-    #            for j in range(dim1):
-    #                ctemp[i][j] += b1[i][j] + b2[i][j] + b3[i][j]
-    #        return ctemp
     @property
     def _B(self):
         B = [self.b1g.T.flatten(), self.b2g.T.flatten(), self.b3g.T.flatten()]

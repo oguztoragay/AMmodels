@@ -143,7 +143,8 @@ def MILP(E, nodes, elements, r_set, dmax, smax, Xw, Yw, Dw, Vw, Sw):
                     m.cons10.add(m.x[i, it[0]] + m.x[j, it[1]] <= 1)
             else:
                 Constraint.Skip
-    # %% Solving the MILP model
+    # ----------------------------------------------------------
+	# %% Solving the MILP model
     msolver = SolverFactory('gurobi') # The following parameter set considered Gurobi as the solver
     msolver.options['TimeLimit'] = 7200  # Time limit is set here
     msolver.options['LogToConsole'] = 1

@@ -1,6 +1,5 @@
 # 12/07/2020 Updated to use the warm start for quadratic model
 import warnings
-
 warnings.filterwarnings("ignore", category=UserWarning)
 import numpy as np
 import gurobipy as gb
@@ -8,10 +7,6 @@ from gurobipy import GRB
 from shapely.geometry import LineString
 import pandas as pd
 import time
-
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
 
 def GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, Xw, Yw, Dw, Vw, Sw):
     boundary = []
@@ -32,15 +27,15 @@ def GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, Xw, Yw, Dw, Vw, Sw):
     m = gb.Model('NewModel')
     m.setParam('NonConvex', 2)
     m.setParam('TimeLimit', 18000)  # Time limit increase from 10800 to 18000 on 11.23.2020
-    m.setParam('Threads', 16)  # In ARMIN's PC should be 16 cores
+    m.setParam('Threads', 16)  # Input your machine's # of CPUs
     m.setParam('LogToConsole', 1)
     m.setParam('DisplayInterval', 100)
     m.setParam('InfUnbdInfo', 1)
     m.setParam('FeasibilityTol', 1e-5)
     m.setParam('Heuristics', 1)
     m.setParam('RINS', 10)
-    m.setParam('Cuts', 3)  # added on 29/12/2020
-    m.setParam('MIPFocus', 1)  # added on 11/1/2021
+    m.setParam('Cuts', 3)
+    m.setParam('MIPFocus', 1)
     m.setParam('Presolve', 2)
     m.setParam('PreQLinearize', 2)
     # --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -183,5 +178,4 @@ def GBNLPpyo(E, nodes, celements, r2_set, dmax, smax, Xw, Yw, Dw, Vw, Sw):
     print(toprint2)
     print(Y)
     print('-----------------------------------------------------------------------------------------------')
-
     return Y, weight1, TQP, data_wsq

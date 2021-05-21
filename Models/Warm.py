@@ -1,5 +1,3 @@
-# 12/07/2020 Most updated MILP solved on PC for Warm start for quadratic as well
-# 01/28/2021 Constraint 1 has been updated, improved the solving time
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 import numpy as np
@@ -136,14 +134,8 @@ def warm(E, nodes, elements, r_set, dmax, smax):
     msolver.options['MIPGap'] = 0.01
     msolver.options['Threads'] = 16
     msolver.options['IntegralityFocus'] = 1
-    # msolver.options['Crossover'] = 1
     msolver.options['BranchDir'] = -1
     msolver.options['Cuts'] = 3
-    # msolver.options['BQPCuts'] = 2
-    # msolver.options['CliqueCuts'] = 2
-    # msolver.options['CoverCuts'] = 2
-    # msolver.options['CutAggPasses'] = 50000
-    # msolver.options['RINS'] = 10
     msolver.set_instance(m)
     Wstart = time.time()
     solution = msolver.solve(m, tee=True, keepfiles=True)#
@@ -161,11 +153,6 @@ def warm(E, nodes, elements, r_set, dmax, smax):
         solution = msolver.solve(m, tee=True, keepfiles=True)
         print('Solver Status: {}'.format(solution.solver.status))
     weight = value(m.obj)
-    # timestr = time.strftime("%Y%m%d-%H%M%S")
-    # filename = str('results'+timestr+'.mst')
-    # with open(filename, 'w') as f:
-    #     for var in m.component_data_objects(Var):
-    #         f.write('% s: % s\n' % (var, var.value))
     X = {}
     Y = {}
     D = {}
@@ -174,7 +161,6 @@ def warm(E, nodes, elements, r_set, dmax, smax):
     for i in m.LE:
         for k in m.PR:
             X.update({(i, k): m.x[i, k].value})
-#            X.update({(i, k): int(round(m.x[i, k].value))})
     for i in m.LE:
         for j in {0, 1, 2}:
             S.update({(i, j): m.s[i, j].value})
@@ -184,7 +170,6 @@ def warm(E, nodes, elements, r_set, dmax, smax):
                 V.update({(i, j, p): m.v[i, j, p].value})
     for i in m.LN:
         Y.update({i: m.y[i].value})
-#        Y.update({i: int(round(m.y[i].value))})
     for i in m.dofs:
         D.update({i: m.d[i].value})
     return X, Y, D, V, S, weight, TWS

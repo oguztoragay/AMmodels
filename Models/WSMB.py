@@ -7,7 +7,7 @@ from openpyxl import Workbook
 import GSgenerator as GS
 from WSMILP import MILP, MILP_without
 from Warm import warm
-from WSQuadratic1 import GBNLPpyo, QUAD_without
+from WSQuadratic import GBNLPpyo
 from MINLP import NLPpyo
 from WSDW import Draw_MINLP, Draw_MILP, Draw_Warm, Draw_GROUND_solid, Draw_GROUND_dashed
 import os
@@ -19,18 +19,15 @@ if __name__ == '__main__':
         E = 109000
         smax = 100000
         dmax = 0.095
-        Load = [50]
+        Load = [25, 50, 75]
         df = pd.DataFrame(columns=['Model', 'Load', 'LB', 'UB', 'Weight', 'Time', 'WS', 'Gap'])
         for ii in Load:
             print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
             print('0000000000000000000000000000000000         WARM START ', str(ii), '           0000000000000000000000000000000000')
             print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
-            ins_f = (4, 4, [0, 3], [14], [ii], 1)
-            # path_oguz = 'C:/Users/ozt0008/Documents/OneDrive - Auburn University/1 AM/Models/model PYTHON/8 February 2021/02.08.2021/results/'
-            path_armin = 'C:/Users/ozt0008/OneDrive - Auburn University/1 AM/salam/'
-            foldername = np.str(path_armin + str(ins_f[0]) + 'x' + str(ins_f[1]) + 'x' + str(ins_f[5]) + 'z')
-#            foldername = 'C:/Users/ozt0008/Desktop/bashe'
-            # foldername = 'C:/Users/ozt0008/OneDrive - Auburn University/1 AM/Paper 1/Lastplot'
+            ins_f = (3, 3, [0, 2], [7], [ii], 1) # The instance to solve
+            path = 'C:/Users/...(enter the path of your codes here)/'
+            foldername = np.str(path + str(ins_f[0]) + 'x' + str(ins_f[1]) + 'x' + str(ins_f[5]) + 'z')
             try:
                 os.mkdir(foldername)
             except:
@@ -49,7 +46,7 @@ if __name__ == '__main__':
                 print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
                 print('000000000000000000000000000000000         LINEAR WITH WS ', str(len(jj)), ' load: ', str(ii), '          00000000000000000000000000000000')
                 print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
-                ins = (4, 4, [0, 3], [14], [ii], 1)
+                ins = (3, 3, [0, 2], [7], [ii], 1) # The instance to solve
                 GS_ins = GS.Generate(ins[0], ins[1], ins[2], ins[3], ins[4], E, jj)
                 nodes = GS_ins.nodes
                 elements = GS_ins.elements
@@ -64,15 +61,6 @@ if __name__ == '__main__':
                 Draw_MILP(nodes, elements, X, S, W, TLP, ii, jj, 'WS-MILP', dmax, fname, foldername)
                 counter = counter + 1
                 df.loc[counter] = ['CS' + str(r1_set.index(jj)+1), ii, data1_wsmilp[0].lower_bound, data1_wsmilp[0].upper_bound, W, data2_wsmilp[0].Time, 1, 0]
-                # ================================================================================
-                print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
-                print('0000000000000000000000000000000         LINEAR WITHOUT WS ', str(len(jj)), ' load: ', str(ii), '          0000000000000000000000000000000')
-                print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
-                X1, S1, W1, TLP1, data1_milp, data2_milp = MILP_without(E, nodes, elements, jj, dmax, smax)
-                fname = np.str(str(ins_f[0]) + 'x' + str(ins_f[1]) + '_' + 'L' + '_' + str(len(jj)) + '_' + str(ii))
-                Draw_MILP(nodes, elements, X1, S1, W1, TLP1, ii, jj, 'MILP', dmax, fname, foldername)
-                counter = counter + 1
-                df.loc[counter] = ['CS' + str(r1_set.index(jj)+1), ii, data1_milp[0].lower_bound, data1_milp[0].upper_bound, W1, data2_milp[0].Time, 0, 0]
             # ============================================================================
             print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
             print('000000000000000000000000000000          QUADRATIC MODEL_WS ', ' load: ', str(ii), '           000000000000000000000000000000')
@@ -82,15 +70,6 @@ if __name__ == '__main__':
             counter = counter + 1
             df.loc[counter] = ['WSQ', ii, data_wsq[0], data_wsq[1], data_wsq[2], data_wsq[4], 1, data_wsq[3]]
             Draw_MINLP(nodes, celements, Z, W, TQP, ii, 'QD', dmax, fname, foldername)
-            # ================================================================================
-            print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
-            print('0000000000000000000000000000000          QUADRATIC MODEL ', ' load: ', str(ii), '           0000000000000000000000000000000')
-            print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
-            ZQ1, WQ1, TQP1, data_q = QUAD_without(E, nodes, celements, r2_set, dmax, smax)
-            fname = np.str(str(ins_f[0]) + 'x' + str(ins_f[1]) + '_' + 'Q' + '_' + str(ii))
-            counter = counter + 1
-            df.loc[counter] = ['Q', ii, data_q[0], data_q[1], data_q[2], data_q[4], 0, data_q[3]]
-            Draw_MINLP(nodes, celements, ZQ1, WQ1, TQP1, ii, 'QUAD', dmax, fname, foldername)
             # ================================================================================
             print('<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>')
             print('0000000000000000000000000000000000       NONLINEAR MODEL ', ' load: ', str(ii), '        0000000000000000000000000000000000')

@@ -1,4 +1,4 @@
-# 06/24/2020 Most updated MILP solved on VM
+# 06/24/2020 Most updated MILP
 import warnings
 warnings.filterwarnings("ignore", category = UserWarning)
 import numpy as np
@@ -9,9 +9,7 @@ from pyomo.opt.parallel import SolverManagerFactory
 from pyomo.util.infeasible import log_infeasible_constraints
 import pandas as pd
 import itertools
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
+
 # %% Definig Sets, Variables and Parameters
 def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
     boundary = set(); load_node = set(); nfree = set(); load_node_dof = []; load_value = []
@@ -117,16 +115,13 @@ def MILPpyo(E, nodes, elements, r_set, dmax, smax, sol, wheresol):
                     m.cons10.add(m.x[i,it[0]] + m.x[j,it[1]] <= 1)
             else:
                 Constraint.Skip
-#    m.write('model_linear','lp')
+#----------------------------------------------------------
 # %% Solving the MILP model
     if wheresol == 'PC':
         if sol == 'GUROBI':
-#            msolver = SolverFactory('CPLEX',executable='/home/oguz/misc/ampl2/cplex')
             msolver = SolverFactory('gurobi')
             #msolver.options['timelim'] = 36000
         solution = msolver.solve(m, tee=True) 
-#    log_infeasible_constraints(m)
-#    solution = solver_manager.solve(m, solver='cplex', options={'integrality':1e-09})
 #----------------------------------------------------------
     for i in m.LE:
         for p in m.PR:
